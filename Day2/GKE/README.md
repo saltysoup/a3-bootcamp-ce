@@ -1,4 +1,4 @@
-# instructions for GKE
+# Instructions for GKE
 
 ## ***Objective***
 
