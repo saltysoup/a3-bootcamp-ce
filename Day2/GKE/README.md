@@ -1,16 +1,15 @@
 # Instructions for GKE
 
 ## ***Objective***
-
-### By following this document, you will be able to bring up an A3 plus GKE cluster with GPUDirect-TCPXO integration.
+### *By following this document, you will be able to bring up an A3 plus GKE cluster with GPUDirect-TCPXO integration.*
 
 ## ***Prerequisites***
 
-### This user guide assumes that you are familiar with Kubernetes concepts such as pod, node, deployment, namespaces etc and are familiar with GKE concepts such as nodepools, autoscaling, and auto provisioning. 
+### *This user guide assumes that you are familiar with Kubernetes concepts such as pod, node, deployment, namespaces etc and are familiar with GKE concepts such as nodepools, autoscaling, and auto provisioning.*
 
 ## ***Provisioning a cluster***
 
-### This section shows how to create a cluster which has two NodePools:
+### *This section shows how to create a cluster which has two NodePools:*
 - The default NodePool contains 3 nodes with e2-medium machine type.
 - The a3-multi-nic NodePool contains 2 nodes with a3-megagpu-8g machine type (8 H100 GPU per node), and supports TCPXO and GKE multi-networking).
 - Steps are extracted from latest External User Guide as of July 2024:
@@ -45,7 +44,7 @@ for N in $(seq 1 8); do
     --source-ranges=192.168.0.0/16
 done
 ```
-> Subnets are configured with /24 range, which has space for 256 IPs. You should explicitly choose the range that fits your needs. If your cluster will have more than 1K nodes, consider a range with more spaces (e.g /21 for 2048 IPs)
+> Note: Subnets are configured with /24 range, which has space for 256 IPs. You should explicitly choose the range that fits your needs. If your cluster will have more than 1K nodes, consider a range with more spaces (e.g /21 for 2048 IPs)
 
 ## Step 2: Get the GKE version and Create a Cluster
 
@@ -88,7 +87,7 @@ nvidia-driver-installer-wmdht                1/1     Running   0          4h7m
 nvidia-gpu-device-plugin-large-cos-2z7p7     1/1     Running   0          4h12m
 nvidia-gpu-device-plugin-large-cos-p4dn5     1/1     Running   0          4h12m
 ```
->The GPU driver is by default installed with `ACCELERATOR_ARG="type=nvidia-h100-mega-80gb,count=8, gpu-driver-version=latest"` in the last step. Otherwise, apply the following command to manually install the driver.
+> Note: The GPU driver is by default installed with `ACCELERATOR_ARG="type=nvidia-h100-mega-80gb,count=8, gpu-driver-version=latest"` in the last step. Otherwise, apply the following command to manually install the driver.
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded-latest.yaml
@@ -112,10 +111,11 @@ Allocatable:
 
 This section shows how to install the TCPXO NCCL plugin and run a 2 node allgather NCCL test.
 
->The TCPXO feature has two components:
+> Note: The TCPXO feature has two components:
 >* The NCCL plugin installer runs as a Daemonset
 >* The TCPXO daemon runs as a sidecar container together with the main GPU application container.
 
+![](https://github.com/saltysoup/a3-bootcamp-ce/assets/12909178/3e6f3bf6-6a34-4a04-878d-ac4f971beff0)
 
 ### Step 6.1: Install the TCPXO NCCL plugin
 The plugin will install a specific NCCL library and the TCPXO binary to the node. After applying the following daemonset manifest, you can find NCCL libraries, e.g. `libnccl.so`, `libnccl-tuner.so` and `libnccl-net.so`  in `/home/kubernetes/bin/nvidia/lib64` from the node’s underlying VM. 
@@ -142,7 +142,7 @@ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container
 
 The manifest you just deployed has two Pods. Each pod has two containers, one is the nccl-test container, and the other one is a **TCPXO daemon**. This is the management service which needs to run alongside the main GPU application container that intends to use TCPXO. 
 
-> **Every application run as a Pod needs to have this tcpxo daemon container as a sidecar with required volume mounts.**
+> Note: **Every application run as a Pod needs to have this tcpxo daemon container as a sidecar with required volume mounts.**
 
 Here is an example manifest of adding this daemon as a sidecar container into GPU workloads:
 
