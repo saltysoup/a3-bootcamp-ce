@@ -22,7 +22,7 @@
 export PREFIX="apacaiinfra"
 export REGION="asia-northeast1"
 export MTU=8244
-export PROJECT="injae-sandbox"
+export PROJECT="injae-sandbox-340804"
 for N in $(seq 1 8); do
   gcloud compute --project=${PROJECT} \
     networks create \
