@@ -227,6 +227,8 @@ Here is the example result for the nccl-test workload:
 #
 ```
 
+![](https://github.com/saltysoup/a3-bootcamp-ce/assets/12909178/ab9075de-6ea1-4b72-9edd-6fa4e3d1613c)
+
 ### *Optinal : Topology Awareness Setup*
 
 If you are using the compact placement or gSC shared reservation when creating A3+ nodepool, you can set up topology awareness configuration to gain better network performance.
