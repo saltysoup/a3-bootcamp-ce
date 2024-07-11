@@ -19,8 +19,8 @@
 ## Step 1: Setup Netwrok (Create VPCs, subnets and firewall rules)
 
 ```
-export PREFIX="tcpxo"
-export REGION="us-central1"
+export PREFIX="apacaiinfra"
+export REGION="asia-northeast1"
 export MTU=8244
 export PROJECT="injae-sandbox"
 for N in $(seq 1 8); do
@@ -49,12 +49,12 @@ done
 ## Step 2: Get the GKE version and Create a Cluster
 
 ```
-export ZONE="us-central1-a"
+export ZONE="asia-northeast1-b"
 gcloud container get-server-config --format="yaml(validMasterVersions)" --zone=${ZONE} --project=${PROJECT}
 
 export GKE_VERSION=GKE_VERSION
-export CLUSTER_NAME="tcpxo"
-export REGION="us-central1"
+export CLUSTER_NAME="apacaiinfra"
+export REGION="asia-northeast1"
 gcloud --project ${PROJECT} beta container clusters create ${CLUSTER_NAME} --enable-dataplane-v2 --enable-ip-alias --region ${REGION} --node-locations ${ZONE} --enable-multi-networking --cluster-version ${GKE_VERSION} --no-enable-autoupgrade
 ```
 
@@ -64,8 +64,8 @@ gcloud --project ${PROJECT} beta container clusters create ${CLUSTER_NAME} --ena
 ```
 export NODE_POOL_NAME="a3plus-multi-nic"
 export MACHINE_TYPE="a3-megagpu-8g"
-export NODE_COUNT=4
-export PREFIX="tcpxo"
+export NODE_COUNT=2
+export PREFIX="apacaiinfra"
 export ACCELERATOR_ARG="type=nvidia-h100-mega-80gb,count=8,gpu-driver-version=latest"
 
 gcloud beta container node-pools create ${NODE_POOL_NAME} --region ${REGION} --node-locations ${ZONE} --cluster ${CLUSTER_NAME} --project ${PROJECT} --no-enable-autoupgrade --accelerator ${ACCELERATOR_ARG} --machine-type ${MACHINE_TYPE} --num-nodes ${NODE_COUNT} --additional-node-network network=${PREFIX}-net-1,subnetwork=${PREFIX}-sub-1 --additional-node-network network=${PREFIX}-net-2,subnetwork=${PREFIX}-sub-2 --additional-node-network network=${PREFIX}-net-3,subnetwork=${PREFIX}-sub-3 --additional-node-network network=${PREFIX}-net-4,subnetwork=${PREFIX}-sub-4 --additional-node-network network=${PREFIX}-net-5,subnetwork=${PREFIX}-sub-5 --additional-node-network network=${PREFIX}-net-6,subnetwork=${PREFIX}-sub-6 --additional-node-network network=${PREFIX}-net-7,subnetwork=${PREFIX}-sub-7 --additional-node-network network=${PREFIX}-net-8,subnetwork=${PREFIX}-sub-8 --enable-gvnic --scopes "https://www.googleapis.com/auth/cloud-platform"
