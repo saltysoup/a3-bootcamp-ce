@@ -207,26 +207,6 @@ kubectl exec --stdin --tty --container=nccl-test nccl-test-host-1 -- /scripts/al
 
 Here is the example result for the nccl-test workload:
 
-```
-#                                                              out-of-place                       in-place          
-#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
-#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
-     1048576         16384     float    none      -1   4654.5    0.23    0.21      0   3890.9    0.27    0.25      0
-     2097152         32768     float    none      -1   4117.2    0.51    0.48      0   5153.5    0.41    0.38      0
-     4194304         65536     float    none      -1   6417.4    0.65    0.61      0   7295.5    0.57    0.54      0
-     8388608        131072     float    none      -1   7872.1    1.07    1.00      0   6451.4    1.30    1.22      0
-    16777216        262144     float    none      -1   6990.7    2.40    2.25      0   5609.3    2.99    2.80      0
-    33554432        524288     float    none      -1   8254.0    4.07    3.81      0   7415.1    4.53    4.24      0
-    67108864       1048576     float    none      -1   5546.3   12.10   11.34      0   6484.0   10.35    9.70      0
-   134217728       2097152     float    none      -1   6507.3   20.63   19.34      0   6015.4   22.31   20.92      0
-   268435456       4194304     float    none      -1   6744.1   39.80   37.32      0   7023.1   38.22   35.83      0
-   536870912       8388608     float    none      -1   8939.8   60.05   56.30      0    11706   45.86   43.00      0
-  1073741824      16777216     float    none      -1   8241.7  130.28  122.14      0   8375.2  128.20  120.19      0
-# Out of bounds values : 0 OK
-# Avg bus bandwidth    : 22.449 
-#
-```
-
 ![](https://github.com/saltysoup/a3-bootcamp-ce/assets/12909178/ab9075de-6ea1-4b72-9edd-6fa4e3d1613c)
 
 ### *Optinal : Topology Awareness Setup*
