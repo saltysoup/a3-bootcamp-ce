@@ -1,0 +1,76 @@
+diff --git a/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py b/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py
+index e5e48cdc1..5e9fc8d6b 100644
+--- a/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py
++++ b/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py
+@@ -21,6 +21,11 @@ from functools import cache, partial
+ from importlib.metadata import version
+ from typing import Any, Dict, Iterator, List, Optional, Union
+ 
++import json
++import nvtx
++import os
++import time
++
+ import torch
+ from omegaconf import OmegaConf
+ from omegaconf.dictconfig import DictConfig
+@@ -394,6 +399,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
+         self.validation_param_sync_overlap = self.cfg.get('validation_param_sync_overlap', False)
+ 
+         self.inference_params = None
++        self._step_number = 0
+ 
+         # default to false since this doesn't work with sequence parallelism currently
+         self.use_loss_mask = self.cfg.get('use_loss_mask', False)
+@@ -751,6 +757,51 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
+         loss_mean = self.fwd_bwd_step(dataloader_iter, forward_only)
+         return loss_mean
+ 
++    def on_train_batch_start(self, batch, batch_idx):
++        super().on_train_batch_start(batch, batch_idx)
++        P = parallel_state.get_pipeline_model_parallel_rank()
++        T = parallel_state.get_tensor_model_parallel_rank()
++        D = parallel_state.get_data_parallel_rank()
++        R = torch.distributed.get_rank()
++
++        self._nvtx_range = nvtx.start_range(f'Training Step [GPU rank {R} (D{D}P{P}T{T})]', color='green')
++
++        self.timestamp = None
++        self._step_number += 1
++        if R == 0:
++            self.timestamp = time.time_ns()
++
++    def on_train_batch_end(self, outputs, batch, batch_idx):
++        super().on_train_batch_end(outputs, batch, batch_idx)
++        nvtx.end_range(self._nvtx_range)
++
++        if self.timestamp:
++            now = time.time_ns()
++            self.log_step_time(now - self.timestamp)
++            self.timestamp = None
++
++    def log_step_time(self, step_time_ns):
++        step_time = step_time_ns / 1000000000
++        log_info = {
++            "job_type": "nemo",
++            "zone": "unknown",
++            "job_uuid": os.environ.get("JOB_UUID"),
++            "job_timestamp": os.environ.get("JOB_TIMESTAMP"),
++            "job_orchestrator": os.environ.get("JOB_ORCHESTRATOR"),
++            "job_config": {
++                "num_nodes": int(os.environ.get("NNODES")),
++                "config_file": os.environ.get("TRAINING_FILENAME"),
++                "image_version": os.environ.get("IMAGE_VERSION")
++            },
++            "metric": {
++                "name": "step_time",
++                "value": step_time
++            }
++        }
++        print()  # work around missing newline in Epoch logs
++        print(json.dumps(log_info))
++        print(json.dumps(log_info, indent=2))
++
+     def training_step(self, dataloader_iter):
+         """
+             We pass the dataloader iterator function to the micro-batch scheduler.
