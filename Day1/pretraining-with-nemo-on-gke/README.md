@@ -21,7 +21,7 @@
 ```
 export PREFIX="apacaiinfra"
 export REGION="asia-northeast1"
-export MTU=8244
+export MTU=8896
 export PROJECT="injae-sandbox-340804"
 ```
 ### * Creat Network
@@ -214,8 +214,10 @@ Here is the example result for the nccl-test workload:
 If you are using the compact placement or gSC shared reservation when creating A3+ nodepool, you can set up topology awareness configuration to gain better network performance.
 
 Please check README.md on the external github for an example of how to take advantage of the performance boosts of this feature.
+---
+### By now you have built a GKE cluster that passed the NCCL testing, let's try some training job on it! 
 
-
+###
 
 
 
