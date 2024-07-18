@@ -64,7 +64,7 @@ Now it's time to deploy Gemma with vLLM to our clusters. We'll use [gemma-7b-it]
 We will start with deploying on the cluster with L4s first. Make sure your L4 cluster is selected as the current context before proceeding.
 
 #### k8s Manifest Creation
-Let's create a k8s manifest named __vllm-7b-it.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
+Let's create a k8s manifest named __gemma-vllm-l4.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
 
 ```yaml
 apiVersion: apps/v1
@@ -86,22 +86,22 @@ spec:
     spec:
       containers:
       - name: inference-server
-        image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20240527_0916_RC00
+        image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20240716_0916_RC00
         resources:
           requests:
             cpu: "2"
-            memory: "25Gi"
+            memory: "80Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 2
           limits:
             cpu: "2"
-            memory: "25Gi"
+            memory: "80Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 2
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
         args:
         - --model=$(MODEL_ID)
-        - --tensor-parallel-size=2
+        - --tensor-parallel-size=1
         env:
         - name: MODEL_ID
           value: google/gemma-1.1-7b-it
@@ -139,7 +139,7 @@ spec:
 Then, let's deploy it by running the following command.
 
 ```bash
-kubectl apply -f vllm-7b-it.yaml
+kubectl apply -f gemma-vllm-l4.yaml
 ```
 
 A Pod in the cluster downloads the model weights from Hugging Face using your access token and starts the serving engine.
@@ -181,21 +181,26 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 #### Send Inference Requests using *curl*
 
-Now we can send an inference request using the below command. You can replace the prompt with your own one for testing.
+Now we can send an inference request using the below python script. You can replace the prompt with your own one for testing.
 
-```bash
-USER_PROMPT="I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?"
+```python
+import requests
 
-curl -X POST http://localhost:8000/generate \
-  -H "Content-Type: application/json" \
-  -d @- <<EOF
-{
-    "prompt": "<start_of_turn>user\n${USER_PROMPT}<end_of_turn>\n",
-    "temperature": 0.90,
-    "top_p": 1.0,
-    "max_tokens": 128
-}
-EOF
+if __name__ == "__main__":
+    url = 'http://127.0.0.1:8000/generate'
+    
+    user_prompt = "I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?"
+
+    req_body = {
+        "prompt": "<start_of_turn>user\n${user_prompt}<end_of_turn>\n",
+        "temperature": 0.90,
+        "top_p": 1.0,
+        "max_tokens": 128
+    }
+
+    x = requests.post(url, json=req_body)
+
+    print(x.text)
 ```
 
 The following output shows an example of the model response:
@@ -206,25 +211,9 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-```bash
-git clone https://github.com/vllm-project/vllm.git
-cd vllm
-```
+Let's run a benchmark test with the following script. It will send same inference request multiple times and then calculate latency and throughput.
 
-```bash
-wget https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/resolve/main/ShareGPT_V3_unfiltered_cleaned_split.json
-```
-
-```bash
-python3 benchmarks/benchmark_serving.py \
-        --backend vllm \
-        --host 127.0.0.1 \
-        --port 8000 \
-        --endpoint /generate \
-        --model gemma-1.1-7b-it \
-        --dataset-name sharegpt \
-        --dataset-path /home/minjkang/ShareGPT_V3_unfiltered_cleaned_split.json \
-        --num-prompts 1000
+```python
 ```
 
 #### Clean up
@@ -232,6 +221,9 @@ python3 benchmarks/benchmark_serving.py \
 Let's clean up Gemma on L4 cluster by running the following command.
 
 ```bash
-kubectl delete -f vllm-7b-it.yaml
+kubectl delete -f gemma-vllm-l4.yaml
 ```
+
+### Deploy on the H100 Cluster
+
 
