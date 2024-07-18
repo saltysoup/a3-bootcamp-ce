@@ -19,14 +19,37 @@ zone: asia-northeast1-b
 
 1. Install the Cloud HPC toolkit in your local environment, including its dependencies [using this link.](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster)
 
-1. [Follow the public deployment guide](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster) with the following changes:
+2. [Follow the public deployment guide](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster) with the following changes:
 
-1. Make changes before creating a new reservation with `--vm-count=2` in `--zone=asia-northeast1-b`
-1. Make changes to the base deployment file with `network_name_system: yourUsername-net` and `subnetwork_name_system: yourUsername-subnet`
-1. Make changes before deploying the VPC and Filestore in `slurm-a3mega-base.yaml`. Change the values to `filestore_tier: BASIC_SSD` and `size_gb: 2560` in line 53-54.
-1. Make changes to the cluster deployment file `deployment-image-cluster.yaml`. Change the values for `network_name_system:`, `subnetwork_name_system:` and `a3mega_reservation_name:` using your respective values from above. As we are not using a gSC reservation, set `a3mega_maintenance_interval: ""`.
-1. To save ~20 min, an custom OS image has already been built ahead of time, called `final_image_family: slurm-a3mega`. It's recommended to skip the [Build the custom OS image](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#build-image) step
-1. Provision the Slurm cluster. This will take approx 10 min to complete.
+3. A reservation has already been created for you (you don't need to create a new one). Use the `a3mega-bootcamp` reservation when updating the [cluster deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-deployment) later
+
+4. Make the following changes in the [base deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-filestore-deployment)
+
+- `deployment_name: yourUsername-base`
+- `network_name_system: yourUsername-net`
+- `subnetwork_name_system: yourUsername-subnet`
+
+5. Before [deploying the VPC and Filestore](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#setup-filestore), Make changes in `slurm-a3mega-base.yaml`. Change the values to `filestore_tier: BASIC_SSD` and `size_gb: 2560` in line 53-54.
+- **Note the private ip address of your Filestore instance in the deployment output. You will need this later!**
+
+6. For [Update the cluster deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-deployment) step, make the following changes in `deployment-image-cluster.yaml`.
+
+- `network_name_system: yourLdap-net`
+- `subnetwork_name_system: yourLdap-subnet`
+- `slurm_cluster_name: yourLdap`
+- `a3mega_reservation_name: a3mega-bootcamp`
+- `a3mega_maintenance_interval: ""` - As we are not using a gSC reservation
+- `a3mega_cluster_size: 2`
+- `server_ip_homefs: yourFilestoreIP` - From the previous deployment output
+
+
+7. To save ~20 min, an custom OS image has already been built ahead of time, called `final_image_family: slurm-a3mega`. It's recommended to skip the [Build the custom OS image](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#build-image) step
+
+8. Make the following changes in the `slurm-a3mega-cluster.yaml`
+
+- `deployment_name: yourLdap-cluster`
+
+9. Proceed to the [Provision the Slurm cluster](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#provision-cluster) step. This will take approx 10 min to complete.
 
 
 ## ***Validate network performance on the cluster with a NCCL test***
@@ -34,10 +57,15 @@ zone: asia-northeast1-b
 ## Step 1: Use the public documented guide
 
 1. To perform a basic performance validation of the cluster, we'll be running a NCCL test across 2 x A3 Mega nodes. This will verify that multi-NIC performance using Fastrak is functional, which is critical for optimising distributed training.
-1. SSH into the newly created Slurm login node using the provided `yourUsername@ikwak.altostrat.com` credentials.
-1. Follow the guide on https://cloud.google.com/hpc-toolkit/docs/machine-learning/a3-mega-enable-gpudirect-tcpxo
-1. You should get a result of ~180GB/s for 8589934592 message size (8GB) after running the NCCL all_reduce network test. This indicates that 1440 Gbps out of the maximum 1600 Gbps VM networking is being used.
 
+2. SSH into the newly created Slurm login node using the provided lab user credentials.
+- `This should be yourLdap@ikwak.altostrat.com`
+
+3. Follow the guide on https://cloud.google.com/hpc-toolkit/docs/machine-learning/a3-mega-enable-gpudirect-tcpxo
+
+**Note: Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `docker images`.**
+
+4. You should get a result of ~180GB/s for 8589934592 message size (8GB) after running the NCCL all_reduce network test. This indicates that 1440 Gbps out of the maximum 1600 Gbps VM networking is being used. With topology awareness and gSC deployment, the results will be ~10% higher.
 
 ## ***Run llama2 training job on NeMo***
 
@@ -84,6 +112,12 @@ ENV LD_LIBRARY_PATH=/var/lib/tcpxo/lib64:$LD_LIBRARY_PATH
 3. Update `setup_nemo.sh` to use the latest NeMo container
 
 ```
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --partition=a3mega
+#SBATCH --exclusive
+
 : "${NEMOFW_VERSION:=24.05}"
 
 srun docker build --build-arg="NEMOFW_VERSION=${NEMOFW_VERSION}" -t nemofw:tcpxo-"${NEMOFW_VERSION}" .
@@ -101,7 +135,16 @@ srun \
 sbatch setup_nemo.sh
 ```
 
-5. Install NeMo Framework required packages in a new python virtual environment
+5. Monitor the job using the following command. This should take approx. 15 min to complete and will show the Status as "R" or Running. The job will automatically disappeart from the queue once it is completed. 
+```
+squeue
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+                 3    a3mega setup_ne ext_ikwa  R       1:03      1 ikwak-a3meganodese
+```
+
+6. If successful, you should now see `requirements.txt`, `launcher_scripts` and `auto_configurator` in your current directory
+
+7. Install NeMo Framework required packages in a new python virtual environment
 ```
 python3 -m venv nemo_env
 source env/bin/activate
@@ -111,20 +154,20 @@ pip install -r requirements.txt # Copied from the NeMo Framework Container earli
 pip install -U hydra-core nvitop
 ```
 
-6. Create an example training job script for running a 5B paramater GPT3 model
+8. Create an example training job script for running a 5B paramater GPT3 model
 
 ```
 cd launcher_scripts
 mkdir -p data
 ```
 
-7. Create a new script `train.sh`
+9. Create a new script `train.sh`
 ```
 #!/bin/bash
 
 source ../nemo_env/bin/activate
 
-MAX_STEPS=10
+MAX_STEPS=20
 NUM_NODES=2
 
 python main.py \
@@ -145,14 +188,16 @@ python main.py \
     training.trainer.num_nodes=${NUM_NODES}
 ```
 
-8. Submit a new job by running `train.sh`. This will result in NeMo generating new training job scripts and submitting to Slurm for execution.
+10. Submit a new job by running `train.sh`. This will result in NeMo generating new training job scripts and submitting to Slurm for execution.
 ```
 bash train.sh
 ```
 
-9. Monitor the progress using Slurm command `watch squeue`. `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `docker images`.
+11. Monitor the progress using Slurm command `watch squeue`. `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `docker images`.
 
-10. Check the generated .out and .err job logs under the `results/gpt3` directory.
+12. Check the generated .out and .err job logs under the `results/gpt3` directory.
+
+**Note: Connect to one of your A3 Mega VMs via SSH and run the nvitop tool (after activating the `nemo_env` virtual environment we created previously). This will allow you to see the real time GPU utilisation rates, which is useful for debugging or performance tuning eg. Low GPU memory utilisation rate likely means you have room to further increase performance!**
 
 ### What is happening?
 
@@ -164,6 +209,7 @@ bash train.sh
 
 ## Step 2: Run and optimise llama2 training job in your Slurm cluster
 
-1. N
+In this step, we'll be running a llama2 training job. Note that the configurations are 
 
+1. 
   
