@@ -188,7 +188,7 @@ cd launcher_scripts
 mkdir -p data
 ```
 
-9. Create a new script `train.sh`
+9. Create a new script `train_gpt.sh`
 ```
 #!/bin/bash
 
@@ -217,7 +217,7 @@ python main.py \
 
 10. Submit a new job by running `train.sh`. This will result in NeMo generating new training job scripts and submitting to Slurm for execution.
 ```
-bash train.sh
+bash train_gpt.sh
 ```
 
 11. Monitor the progress using Slurm command `watch squeue`. `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `docker images`.
@@ -236,7 +236,27 @@ bash train.sh
 
 ## Step 2: Run and optimise llama2 training job in your Slurm cluster
 
-In this step, we'll be running a llama2 training job. Note that the configurations are 
+In this step, we'll be running a llama2 training job. Refer to yaml examples in `launcher_scripts/conf/training/llama` for pre-configured NeMo configurations.
 
-1. 
-  
+1. Use slurm to run a command on your A3 mega nodes to install huggingface-cli and authenticate to access llama2 repo
+
+```
+srun -w <yourLdap>-a3meganodeset-[0-1] pip install huggingface-hub
+
+srun -w <yourLdap>-a3meganodeset-[0-1] huggingface-cli login --token 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
+```
+`Note: you can get the names of your nodes in the A3mega partition by using the sinfo command`
+
+2. Download the llama2 tokenizer
+
+3. Create a new training script called `train_llama.sh` in the `launcher_scripts` directory
+
+4. Note the training throughput in the .out log file. This is represented by `training_step_time_sec`
+
+5. Use the provided google sheets template to calculate your MFU and tokens/GPU/sec
+
+6. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
+
+`Protip 1: Watch out! you may get CUDA OOM errors as you start modifying your training parameters. A hint is to start by lowering your micro_batch_size.`
+
+`Protip 2: To identify how much headroom is available on your GPU for optimisation, SSH into one of your A3 mega VM and monitor metrics in real time such as GPU utilisation using nvitop. If you still have unused GPU memory, you can tune further eg. Increase micro_batch_size, bucket sizes, down quant precision type..`
