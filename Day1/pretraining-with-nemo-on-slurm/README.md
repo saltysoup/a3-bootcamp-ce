@@ -21,6 +21,8 @@ zone: asia-northeast1-b
 
 2. [Follow the public deployment guide](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster) with the following changes:
 
+`Note: git checkout release-candidate - due to current bug`
+
 3. A reservation has already been created for you (you don't need to create a new one). Use the `a3mega-bootcamp` reservation when updating the [cluster deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-deployment) later
 
 4. Make the following changes in the [base deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-filestore-deployment)
@@ -34,6 +36,7 @@ zone: asia-northeast1-b
 
 6. For [Update the cluster deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-deployment) step, make the following changes in `deployment-image-cluster.yaml`.
 
+- `deployment_name: yourLdap-cluster`
 - `network_name_system: yourLdap-net`
 - `subnetwork_name_system: yourLdap-subnet`
 - `slurm_cluster_name: yourLdap`
@@ -66,6 +69,26 @@ zone: asia-northeast1-b
 **Note: Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `docker images`.**
 
 4. You should get a result of ~180GB/s for 8589934592 message size (8GB) after running the NCCL all_reduce network test. This indicates that 1440 Gbps out of the maximum 1600 Gbps VM networking is being used. With topology awareness and gSC deployment, the results will be ~10% higher.
+
+Example (see values under `busbw` column)
+```
+ 0: #                                                              out-of-place                       in-place          
+ 0: #       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+ 0: #        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+ 0:      8388608        131072     float    none      -1    350.9   23.91   22.41    N/A    345.0   24.31   22.79    N/A
+ 0:     16777216        262144     float    none      -1    394.7   42.50   39.85    N/A    392.6   42.73   40.06    N/A
+ 0:     33554432        524288     float    none      -1    444.9   75.43   70.71    N/A    441.8   75.94   71.20    N/A
+ 0:     67108864       1048576     float    none      -1    705.8   95.08   89.14    N/A    709.0   94.65   88.74    N/A
+ 0:    134217728       2097152     float    none      -1   1101.8  121.82  114.21    N/A   1101.9  121.81  114.20    N/A
+ 0:    268435456       4194304     float    none      -1   2007.2  133.73  125.38    N/A   2002.6  134.04  125.66    N/A
+ 0:    536870912       8388608     float    none      -1   3490.1  153.83  144.21    N/A   3383.0  158.70  148.78    N/A
+ 0:   1073741824      16777216     float    none      -1   6052.2  177.41  166.32    N/A   6040.9  177.74  166.64    N/A
+ 0:   2147483648      33554432     float    none      -1    11520  186.41  174.76    N/A    11363  188.98  177.17    N/A
+ 0:   4294967296      67108864     float    none      -1    21720  197.74  185.38    N/A    21642  198.46  186.05    N/A
+ 0:   8589934592     134217728     float    none      -1    42954  199.98  187.48    N/A    43188  198.90  186.47    N/A
+ 0: # Out of bounds values : 0 OK
+ 0: # Avg bus bandwidth    : 120.346 
+```
 
 ## ***Run llama2 training job on NeMo***
 
