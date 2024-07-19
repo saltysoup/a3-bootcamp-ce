@@ -224,6 +224,8 @@ Total Generated Tokens: 8874
 Average Throughput: 25.39 tokens/sec
 ```
 
+> With that, convert Average Throughput(tokens/sec) into Average Cost Performance(tokens/$).
+
 #### Clean up
 
 Let's clean up Gemma on L4 cluster by running the following command.
@@ -407,6 +409,8 @@ Total Generated Tokens: 8598
 Average Throughput: 132.94 tokens/sec
 ```
 
+> With that, convert Average Throughput(tokens/sec) into Average Cost Performance(tokens/$)
+<!-- -->
 > Compare this with L4 benchmark results. Do they differ significantly?
 
 #### Clean up
@@ -419,7 +423,7 @@ kubectl delete -f gemma-vllm-h100.yaml
 
 ## Optimize Performance for Gemma on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting for vLLM+Gemma for maximum throughput/$ on your own. You can use the existing k8s manifest and benchmarking script for experimentation. You can either add or modify vLLM setting arguments. Share your results through the leaderboard.
+Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for vLLM+Gemma to achieve maximum Average Cost Performance(tokens/$). You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify vLLM configuration arguments. Share your results through the leaderboard.
 
 > Hint: Refer to k8s manifest and notice how we have passed vLLM settings
 <!-- -->
