@@ -86,22 +86,23 @@ spec:
     spec:
       containers:
       - name: inference-server
-        image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20240716_0916_RC00
+        image: minjkang/a3-bootcamp-lab3:latest
+        imagePullPolicy: Always
         resources:
           requests:
             cpu: "2"
             memory: "80Gi"
             ephemeral-storage: "25Gi"
-            nvidia.com/gpu: 2
+            nvidia.com/gpu: 8
           limits:
             cpu: "2"
             memory: "80Gi"
             ephemeral-storage: "25Gi"
-            nvidia.com/gpu: 2
+            nvidia.com/gpu: 8
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
         args:
         - --model=$(MODEL_ID)
-        - --tensor-parallel-size=1
+        - --tensor-parallel-size=2
         env:
         - name: MODEL_ID
           value: google/gemma-1.1-7b-it
@@ -179,7 +180,7 @@ The output is similar to the following:
 Forwarding from 127.0.0.1:8000 -> 8000
 ```
 
-#### Send Inference Requests using *curl*
+#### Send Inference Requests
 
 Now we can send an inference request using the below python script. You can replace the prompt with your own one for testing.
 

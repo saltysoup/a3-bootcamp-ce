@@ -11,6 +11,7 @@ import copy
 import json
 from http import HTTPStatus
 import ssl
+import time
 from typing import AsyncGenerator, List
 
 import uvicorn
@@ -154,6 +155,7 @@ async def generate(request: Request) -> Response:
                     return StreamingResponse(stream_results())
 
                 # Non-streaming case
+                start_time = time.perf_counter()
                 final_output = None
                 async for request_output in results_generator:
                     if await request.is_disconnected():
@@ -161,6 +163,9 @@ async def generate(request: Request) -> Response:
                         await engine.abort(request_id)
                         return Response(status_code=499)
                     final_output = request_output
+
+                # measure overall time for token generation
+                time_elapsed = time.perf_counter() - start_time
 
                 assert final_output is not None
                 if raw_response:
@@ -177,13 +182,27 @@ async def generate(request: Request) -> Response:
                         "cumulative_logprobs": cumulative_logprobs,
                     })
                 else:
+                    #time_elapsed = time.perf_counter() - start_time
                     prompt = final_output.prompt
                     text_outputs = [
                         format_output(prompt, output.text)
                         for output in final_output.outputs
                     ]
+
+                    # count number of tokens
+                    output_token_counts = [
+                        len(output.token_ids) for output in final_output.outputs
+                    ]
+                    total_tokens_generated = sum(output_token_counts)
+
                     ret.append({"predictions": text_outputs})
-                    ret.append({"foo": "bar"})
+                    ret.append({
+                        "benchmark": {
+                            "total_elapsed_time": time_elapsed,
+                            "total_tokens_generated": total_tokens_generated,
+                            "throughput": total_tokens_generated / time_elapsed,
+                        }
+                    })
     except ValueError as e:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
