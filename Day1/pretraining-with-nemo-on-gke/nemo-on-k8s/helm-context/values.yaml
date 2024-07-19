@@ -16,12 +16,12 @@ volumes:
   #     mountPath: "/gcs"
 
 gcsDownload: # downloads or synchronizes contents of a GCS bucket folder on initialization
-  source: "gs://nemo-megatron-demo/training-data/tokenized/bpe2gpt/wikipedia/" 
+  source: "gs://injae-download/megatron-lm/wikipedia/" 
   #source: "gs://nemo-megatron-demo/training-data/tokenized/sentencepiece-llama2/wikipedia" 
   target: "/ssd/.cache/"
 
 workload:
-  image: "us-east4-docker.pkg.dev/supercomputer-testing/mhvictorhau/nemo:24.05" #"us-central1-docker.pkg.dev/supercomputer-testing/sufkha-nemo-demo-test/nemo-benchmarks-v3:24.03.01.framework"
+  image: "us-central1-docker.pkg.dev/injae-sandbox-340804/a3-bootcamp-labs/nemofw-tcpxo:24.05.patched" #"us-central1-docker.pkg.dev/supercomputer-testing/sufkha-nemo-demo-test/nemo-benchmarks-v3:24.03.01.framework"
   torchDistributedTarget: "/opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py"
 
   # It will be mounted to /nfs on container startup using GCS fuse
