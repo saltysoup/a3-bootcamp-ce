@@ -40,19 +40,14 @@ Since we will download the model checkpoint from [HuggingFace](https://huggingfa
 
 Go to [Gemma Model Card](https://huggingface.co/google/gemma-7b-it) to request access. (If it's not granted right away, please ask Minjae Kang(@minjkang) or Injae Kwak(@ikwak) for help.)
 
-### HF Access Token Creation
+### HuggingFace Access Token Creation
 
 At the [settings](https://huggingface.co/settings/tokens) page, you can generate your access token. Make sure to set __Token type__ as __Read__ when you create the token.
 
-### Setting K8s Secret
-
-Run the following command after replacing __${YOUR_HF_ACCESS_TOKEN}__ with your own token.
+Run the following command after replacing __${YOUR_HF_ACCESS_TOKEN}__ with your own token. Set HuggingFace Access Token as an environment variable as follows:
 
 ```bash
-export HF_TOKEN=${YOUR_HF_ACCESS_TOKEN} && \
-kubectl create secret generic hf-secret \
---from-literal=hf_api_token=$HF_TOKEN \
---dry-run=client -o yaml | kubectl apply -f -
+export HF_TOKEN=${YOUR_HF_ACCESS_TOKEN}
 ```
 
 ## Deploy Gemma with vLLM
@@ -62,6 +57,16 @@ Now it's time to deploy Gemma with vLLM to our clusters. We'll use [gemma-7b-it]
 ### Deploy on the L4 Cluster
 
 We will start with deploying on the cluster with L4s first. Make sure your L4 cluster is selected as the current context before proceeding.
+
+#### Setting HuggingFace Access Token as a k8s Secret
+
+Run the following command to ingest your HuggingFace Access Token to the cluster.
+
+```bash
+kubectl create secret generic hf-secret \
+--from-literal=hf_api_token=$HF_TOKEN \
+--dry-run=client -o yaml | kubectl apply -f -
+```
 
 #### k8s Manifest Creation
 Let's create a k8s manifest named __gemma-vllm-l4.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
@@ -143,7 +148,7 @@ Then, let's deploy it by running the following command.
 kubectl apply -f gemma-vllm-l4.yaml
 ```
 
-A Pod in the cluster downloads the model weights from Hugging Face using your access token and starts the serving engine.
+A Pod in the cluster will download the model weights from HuggingFace using your access token and start the serving engine.
 
 Wait for the Deployment to be available:
 
@@ -151,7 +156,7 @@ Wait for the Deployment to be available:
 kubectl wait --for=condition=Available --timeout=700s deployment/vllm-gemma-deployment
 ```
 
-View the logs from the running Deployment:
+You can view the logs from the running Deployment:
 
 ```bash
 kubectl logs -f -l app=gemma-server
@@ -182,39 +187,41 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 #### Send Inference Requests
 
-Now we can send an inference request using the below python script. You can replace the prompt with your own one for testing.
+Now we can send inference requests using __archive/client.py__. You can replace *user_prompt* with your own one for testing.
 
-```python
-import requests
-
-if __name__ == "__main__":
-    url = 'http://127.0.0.1:8000/generate'
-    
-    user_prompt = "I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?"
-
-    req_body = {
-        "prompt": "<start_of_turn>user\n${user_prompt}<end_of_turn>\n",
-        "temperature": 0.90,
-        "top_p": 1.0,
-        "max_tokens": 128
-    }
-
-    x = requests.post(url, json=req_body)
-
-    print(x.text)
+```bash
+python archive/client.py
 ```
 
 The following output shows an example of the model response:
 
-```bash
-{"predictions":["Prompt:\n<start_of_turn>user\nI'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\nOutput:\nPython is often recommended for beginners due to its clear, readable syntax, simple data types, and extensive libraries.\n\n**Here are some other reasons why Python is a great language for beginners:**\n\n* **Beginner-friendly syntax:** Python's syntax is similar to natural language, making it easy for beginners to understand and write code.\n* **Dynamic typing:** Python automatically figures out the type of data you are working with, eliminating the need for explicit declaration.\n* **Object-oriented:** Python supports object-oriented programming, which allows you to organize and reuse code.\n* **Large library:** Python has a vast library of"]}
+```json
+{
+    "prediction": "prompt:\n<start_of_turn>user\n$I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\noutput:\n**Python**\n\nHere are some reasons why Python is...",
+    "benchmark": {
+        "total_elapsed_time": 5.413699760999975,
+        "total_tokens_generated": 137,
+        "throughput": 25.306168802884343
+    }
+}
 ```
 
 #### Run Benchmark Test
 
-Let's run a benchmark test with the following script. It will send same inference request multiple times and then calculate latency and throughput.
+Let's run a benchmark test using __archive/benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
 
-```python
+```bash
+python archive/benchmark.py
+```
+
+The output will be like:
+
+```bash
+===== Result =====
+Iterations: 50
+Total Elapsed Time for Generation: 349.47 seconds
+Total Generated Tokens: 8874
+Average Throughput: 25.39 tokens/sec
 ```
 
 #### Clean up
@@ -227,4 +234,194 @@ kubectl delete -f gemma-vllm-l4.yaml
 
 ### Deploy on the H100 Cluster
 
+Repeat the steps we did for L4 Cluster again for H100 Cluster.
+Make sure your H100 cluster is selected as the current context before proceeding.
+
+```bash
+kubectl config use-context ${NAME-OF-THE-CONTEXT-FOR-YOUR-H100-CLUSTER}
+```
+
+#### Setting HuggingFace Access Token as a k8s Secret
+
+Run the following command to ingest your HuggingFace Access Token to the cluster.
+
+```bash
+kubectl create secret generic hf-secret \
+--from-literal=hf_api_token=$HF_TOKEN \
+--dry-run=client -o yaml | kubectl apply -f -
+```
+
+#### k8s Manifest Creation
+Let's create a k8s manifest named __gemma-vllm-h100.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-gemma-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gemma-server
+  template:
+    metadata:
+      labels:
+        app: gemma-server
+        ai.gke.io/model: gemma-1.1-7b-it
+        ai.gke.io/inference-server: vllm
+        examples.ai.gke.io/source: user-guide
+    spec:
+      containers:
+      - name: inference-server
+        image: minjkang/a3-bootcamp-lab3:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "2"
+            memory: "80Gi"
+            ephemeral-storage: "25Gi"
+            nvidia.com/gpu: 8
+          limits:
+            cpu: "2"
+            memory: "80Gi"
+            ephemeral-storage: "25Gi"
+            nvidia.com/gpu: 8
+        command: ["python3", "-m", "vllm.entrypoints.api_server"]
+        args:
+        - --model=$(MODEL_ID)
+        - --tensor-parallel-size=2
+        env:
+        - name: MODEL_ID
+          value: google/gemma-1.1-7b-it
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_api_token
+        volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+      - name: dshm
+        emptyDir:
+            medium: Memory
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-h100-80gb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+spec:
+  selector:
+    app: gemma-server
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+```
+
+#### Apply k8s Manifest to the Cluster
+
+Then, let's deploy it by running the following command.
+
+```bash
+kubectl apply -f gemma-vllm-h100.yaml
+```
+
+A Pod in the cluster will download the model weights from HuggingFace using your access token and start the serving engine.
+
+Wait for the Deployment to be available:
+
+```bash
+kubectl wait --for=condition=Available --timeout=700s deployment/vllm-gemma-deployment
+```
+
+You can view the logs from the running Deployment:
+
+```bash
+kubectl logs -f -l app=gemma-server
+```
+
+The Deployment resource downloads the model data. This process can take a few minutes. Once you succeed, the output will be similar to the following:
+
+```bash
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+#### Set Up k8s Port Forwarding for Testing
+
+To send inference requests, let's set up port forwarding by running the following command.
+
+```bash
+kubectl port-forward service/llm-service 8000:8000
+```
+
+The output is similar to the following:
+
+```bash
+Forwarding from 127.0.0.1:8000 -> 8000
+```
+
+#### Send Inference Requests
+
+Now we can send inference requests using __archive/client.py__. You can replace *user_prompt* with your own one for testing.
+
+```bash
+python archive/client.py
+```
+
+The following output shows an example of the model response:
+
+```json
+{
+    "prediction": "prompt:\n<start_of_turn>user\n$I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\noutput:\n**Python**\n\n**Reasons:**\n\n* **Easy to read and write:** Python syntax is simple and concise, ...",
+    "benchmark": {
+        "total_elapsed_time": 1.5017438680000055,
+        "total_tokens_generated": 197,
+        "throughput": 131.18082530435828
+    }
+}
+```
+
+#### Run Benchmark Test
+
+Let's run a benchmark test using __archive/benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+
+```bash
+python archive/benchmark.py
+```
+
+The output will be like:
+
+```bash
+===== Result =====
+Iterations: 50
+Total Elapsed Time for Generation: 64.68 seconds
+Total Generated Tokens: 8598
+Average Throughput: 132.94 tokens/sec
+```
+
+> Compare this with L4 benchmark results. Do they differ significantly?
+
+#### Clean up
+
+Let's clean up Gemma on H100 cluster by running the following command.
+
+```bash
+kubectl delete -f gemma-vllm-h100.yaml
+```
+
+## Optimize Performance for Gemma on GKE
+
+Now it's time to get your hands dirty. Your goal is to find an optimal setting for vLLM+Gemma for maximum throughput/$ on your own. You can use the existing k8s manifest and benchmarking script for experimentation. You can either add or modify vLLM setting arguments. Share your results through the leaderboard.
+
+> Hint: Refer to k8s manifest and notice how we have passed vLLM settings
+<!-- -->
+> Hint: See this [link](https://docs.vllm.ai/en/latest/models/engine_args.html) to get information about vLLM setting arguments.
 

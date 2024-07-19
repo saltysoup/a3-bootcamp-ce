@@ -44,7 +44,7 @@ lora_modules_manager = None
 
 def format_output(prompt: str, output: str):
     output = output.strip("\n")
-    return f"Prompt:\n{prompt.strip()}\nOutput:\n{output}"
+    return f"prompt:\n{prompt.strip()}\noutput:\n{output}"
 
 
 @app.get("/ping")
@@ -182,7 +182,6 @@ async def generate(request: Request) -> Response:
                         "cumulative_logprobs": cumulative_logprobs,
                     })
                 else:
-                    #time_elapsed = time.perf_counter() - start_time
                     prompt = final_output.prompt
                     text_outputs = [
                         format_output(prompt, output.text)
@@ -195,8 +194,8 @@ async def generate(request: Request) -> Response:
                     ]
                     total_tokens_generated = sum(output_token_counts)
 
-                    ret.append({"predictions": text_outputs})
                     ret.append({
+                        "prediction": text_outputs[0],
                         "benchmark": {
                             "total_elapsed_time": time_elapsed,
                             "total_tokens_generated": total_tokens_generated,
