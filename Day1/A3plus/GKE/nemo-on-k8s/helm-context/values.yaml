@@ -16,18 +16,18 @@ volumes:
   #     mountPath: "/gcs"
 
 gcsDownload: # downloads or synchronizes contents of a GCS bucket folder on initialization
-  source: "gs://nemo-megatron-demo/training-data/tokenized/bpe2gpt/wikipedia/" 
+  source: "gs://injae-download/megatron-lm/wikipedia/" 
   #source: "gs://nemo-megatron-demo/training-data/tokenized/sentencepiece-llama2/wikipedia" 
   target: "/ssd/.cache/"
 
 workload:
-  image: "us-east4-docker.pkg.dev/supercomputer-testing/mhvictorhau/nemo:24.05" #"us-central1-docker.pkg.dev/supercomputer-testing/sufkha-nemo-demo-test/nemo-benchmarks-v3:24.03.01.framework"
+  image: "us-central1-docker.pkg.dev/injae-sandbox-340804/a3-bootcamp-labs/nemofw-tcpxo:24.05.patched" #"us-central1-docker.pkg.dev/supercomputer-testing/sufkha-nemo-demo-test/nemo-benchmarks-v3:24.03.01.framework"
   torchDistributedTarget: "/opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py"
 
   # It will be mounted to /nfs on container startup using GCS fuse
-  gcsBucketForDataCataPath: elm-benchmark
+  gcsBucketForDataCataPath: felix-tpu
 
-  gpus: 128 # This should be one of: {<= 8,  multiple of 8}
+  gpus: 16 # This should be one of: {<= 8,  multiple of 8}
   arguments:
   # These argument name will be prefixed with '+' (see https://hydra.cc/docs/advanced/override_grammar/basic/)
   - name: "exp_manager.explicit_log_dir"
@@ -56,7 +56,7 @@ network:
 
   ncclSettings:
   - name: TRAINING_FILENAME
-    value: "mixtral-8x7b-nvidia-configs.yaml" #"llama2-7b.yaml"
+    value: "llama2-7b.yaml" #"llama2-7b.yaml"
   - name: IMAGE_VERSION
     value: "24.05" #"24.03.01.framework"
     
@@ -68,4 +68,3 @@ network:
   # The following NCCL settings are recommended for TCPxo only (but tunable):
   - name: NCCL_MIN_NCHANNELS
     value: "4"
-

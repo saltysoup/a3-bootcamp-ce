@@ -11,7 +11,7 @@ metadata:
   name: "{{ .Release.Name }}" 
 data:
   nemo-configuration.yaml: |-
-{{ .Files.Get "selected-configuration.yaml" | nindent 4 }}
+{{ .Files.Get "llama2-7b.yaml" | nindent 4 }}
 ---
 apiVersion: v1
 kind: Service
@@ -49,8 +49,8 @@ spec:
       {{- end}}
 
    spec:
-    schedulingGates:
-    - name: "gke.io/topology-aware-auto-scheduling"
+  #  schedulingGates:
+  #  - name: "gke.io/topology-aware-auto-scheduling"
     hostNetwork: true
     dnsPolicy: ClusterFirstWithHostNet
     subdomain: "{{.Release.Name}}"
