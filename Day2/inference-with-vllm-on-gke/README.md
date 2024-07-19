@@ -423,7 +423,11 @@ kubectl delete -f gemma-vllm-h100.yaml
 
 ## Optimize Performance for Gemma on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for vLLM+Gemma to achieve maximum Average Per Cost Performance(tokens/$). You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify vLLM configuration arguments. Share your results through the leaderboard.
+Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for vLLM+Gemma to achieve maximum Average Per Cost Performance(tokens/$).
+
+> Note: Settings provided in this lab is far from the optimal👻.
+
+You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify vLLM configuration arguments. Share your results through the leaderboard.
 
 > Hint: Refer to k8s manifest and notice how we have passed vLLM settings
 <!-- -->
