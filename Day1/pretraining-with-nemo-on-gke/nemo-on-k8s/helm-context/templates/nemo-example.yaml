@@ -11,7 +11,7 @@ metadata:
   name: "{{ .Release.Name }}" 
 data:
   nemo-configuration.yaml: |-
-{{ .Files.Get "llama2-7b.yaml" | nindent 4 }}
+{{ .Files.Get "llama2-7b-fp8.yaml" | nindent 4 }}
 ---
 apiVersion: v1
 kind: Service
