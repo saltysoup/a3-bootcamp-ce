@@ -115,7 +115,7 @@ ENV NCCL_FASTRAK_CTRL_DEV=enp0s12
 ENV NCCL_FASTRAK_IFNAME=enp6s0,enp7s0,enp13s0,enp14s0,enp134s0,enp135s0,enp141s0,enp142s0
 ENV NCCL_SOCKET_IFNAME=enp0s12
 ENV NCCL_CROSS_NIC=0
-ENV NCCL_ALGO=Ring
+ENV NCCL_ALGO=Ring,Tree
 ENV NCCL_PROTO=Simple
 ENV NCCL_MIN_NCHANNELS=4
 ENV NCCL_DYNAMIC_CHUNK_SIZE=524288
@@ -134,6 +134,10 @@ ENV NCCL_FASTRAK_LLCM_DEVICE_DIRECTORY=/dev/aperture_devices
 
 RUN echo "/var/lib/tcpxo/lib64" >> /etc/ld.so.conf.d/tcpxo.conf && ldconfig
 ENV LD_LIBRARY_PATH=/var/lib/tcpxo/lib64:$LD_LIBRARY_PATH
+
+# Replace with latest NeMo code for bucket merge optimisation
+RUN cd /opt && rm -r NeMo
+RUN cd /opt && git clone https://github.com/NVIDIA/NeMo.git
 ```
 
 3. Update `setup_nemo.sh` to use the latest NeMo container
@@ -147,13 +151,13 @@ ENV LD_LIBRARY_PATH=/var/lib/tcpxo/lib64:$LD_LIBRARY_PATH
 
 : "${NEMOFW_VERSION:=24.05}"
 
-srun docker build --build-arg="NEMOFW_VERSION=${NEMOFW_VERSION}" -t nemofw:tcpxo-"${NEMOFW_VERSION}" .
-srun rm -f nemofw+tcpxo-"${NEMOFW_VERSION}".sqsh
-srun enroot import dockerd://nemofw:tcpxo-"${NEMOFW_VERSION}"
+srun docker build --build-arg="NEMOFW_VERSION=${NEMOFW_VERSION}" -t nemofw:tcpxo-"${NEMOFW_VERSION}-patched" .
+srun rm -f nemofw+tcpxo-"${NEMOFW_VERSION}-patched".sqsh
+srun enroot import dockerd://nemofw:tcpxo-"${NEMOFW_VERSION}-patched"
 
 srun \
 	--container-mounts="${PWD}":/workspace/mount_dir,/var/tmp:/var/tmp \
-	--container-image=./nemofw+tcpxo-"${NEMOFW_VERSION}".sqsh \
+	--container-image=./nemofw+tcpxo-"${NEMOFW_VERSION}-patched".sqsh \
 	bash -c "cp -r /opt/NeMo-Framework-Launcher/requirements.txt /opt/NeMo-Framework-Launcher/launcher_scripts /opt/NeMo-Framework-Launcher/auto_configurator /workspace/mount_dir/"
 ```
 
@@ -181,14 +185,204 @@ pip install -r requirements.txt # Copied from the NeMo Framework Container earli
 pip install -U hydra-core nvitop
 ```
 
-8. Create an example training job script for running a 5B paramater GPT3 model
+## Step 2: Run and optimise llama2 training job in your Slurm cluster
+
+In this step, we'll be running a llama2 training job. Refer to yaml examples in `launcher_scripts/conf/training/llama` for pre-configured NeMo configurations for various llama models.
+
+1. Create a new NeMo training config for llama2. This will include the latest bucket merge optimisation from the [NeMo Github repo](https://github.com/NVIDIA/NeMo/tree/main), which enables better communication overlap for faster training.
 
 ```
-cd launcher_scripts
-mkdir -p data
+# Create a new training config from the launcher_scripts directory
+
+touch conf/training/llama/llama2_7b_bootcamp.yaml
 ```
 
-9. Create a new script `train_gpt.sh`
+2. Copy below config into llama2_7b_bootcamp.yaml
+
+```
+defaults:
+  - _self_
+  - optional tp_overlap@model.ub_tp_comm_overlap_cfg:
+
+hydra:
+  searchpath:
+    - file:///opt/NeMo/examples/nlp/language_modeling/conf
+
+run:
+  name: llama2_7b_bootcamp
+  results_dir: ${base_results_dir}/${.name}
+  time_limit: "0-01:30:00"
+  dependency: "singleton"
+trainer:
+  num_nodes: 2
+  devices: 8
+  accelerator: gpu
+  precision: bf16 #16-mixed for FP_16 enabled
+  logger: False # logger provided by exp_manager
+  enable_checkpointing: False
+  use_distributed_sampler: False
+  max_epochs: null
+  max_steps: 300000 # consumed_samples = global_step * global_batch_size
+  max_time: "05:23:30:00" # days:hours:minutes:seconds
+  log_every_n_steps: 1
+  val_check_interval: 2000
+  limit_val_batches: 0
+  limit_test_batches: 0
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+exp_manager:
+  explicit_log_dir: ${training.run.results_dir}/results
+  exp_dir: null
+  name: megatron_llama
+  create_wandb_logger: false
+  wandb_logger_kwargs:
+    project: nemo_llama_pretrain
+    name: ${training.run.name}
+  resume_if_exists: false
+  resume_ignore_no_checkpoint: true
+  create_checkpoint_callback: False
+  checkpoint_callback_params:
+    monitor: val_loss
+    save_top_k: 10
+    mode: min
+    always_save_nemo: False # saves nemo file during validation, not implemented for model parallel
+    save_nemo_on_train_end: False # not recommended when training large models on clusters with short time limits
+    filename: 'megatron_llama--{val_loss:.2f}-{step}-{consumed_samples}'
+    model_parallel_size: ${multiply:${training.model.tensor_model_parallel_size}, ${training.model.pipeline_model_parallel_size}}
+  log_step_timing: True
+  step_timing_kwargs:
+    sync_cuda: True
+    buffer_size: 5
+
+model:
+  mcore_gpt: true
+  micro_batch_size: 1
+  global_batch_size: 1024 #2048
+  rampup_batch_size: null
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  virtual_pipeline_model_parallel_size: null
+  encoder_seq_length: 4096
+  max_position_embeddings: 4096
+  num_layers: 32
+  hidden_size: 4096
+  ffn_hidden_size: 11008
+  num_attention_heads: 32
+  init_method_std: 0.01
+  use_scaled_init_method: true
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  ffn_dropout: 0.0
+  kv_channels: null
+  apply_query_key_layer_scaling: true
+  normalization: rmsnorm
+  layernorm_epsilon: 1.0e-05
+  do_layer_norm_weight_decay: false
+  make_vocab_size_divisible_by: 128
+  pre_process: true
+  post_process: true
+  persist_layer_norm: true
+  bias: false
+  activation: fast-swiglu
+  headscale: false
+  transformer_block_type: pre_ln
+  openai_gelu: false
+  normalize_attention_scores: true
+  position_embedding_type: rope
+  rotary_percentage: 1.0
+  apply_rope_fusion: true
+  attention_type: multihead
+  share_embeddings_and_output_weights: false
+  tokenizer:
+    library: huggingface
+    use_fast: true
+    type: /data/tokenizer
+    model: null
+    delimiter: null
+    vocab_file: null
+    merge_file: null
+  native_amp_init_scale: 4294967296
+  native_amp_growth_interval: 1000
+  hysteresis: 2
+  fp32_residual_connection: false
+  fp16_lm_cross_entropy: false
+  megatron_amp_O2: true
+  grad_allreduce_chunk_size_mb: 100
+  grad_div_ar_fusion: true
+  gradient_accumulation_fusion: true
+  bias_activation_fusion: true
+  bias_dropout_add_fusion: true
+  masked_softmax_fusion: true
+  seed: 1234
+  resume_from_checkpoint: null
+  use_cpu_initialization: false
+  onnx_safe: false
+  apex_transformer_log_level: 30
+  gradient_as_bucket_view: true
+  sync_batch_comm: false
+  activations_checkpoint_granularity: null
+  activations_checkpoint_method: block
+  activations_checkpoint_num_layers: 0
+  num_micro_batches_with_partial_activation_checkpoints: null
+  activations_checkpoint_layers_per_pipeline: null
+  sequence_parallel: false
+
+  ## Transformer Engine
+  # Refer to https://github.com/NVIDIA/NeMo/blob/main/nemo/collections/nlp/models/language_modeling/megatron_base_model.py for param descriptions
+  transformer_engine: true
+  fp8: False # enables fp8 in TransformerLayer forward
+  fp8_e4m3: False # sets fp8_format = recipe.Format.E4M3
+  fp8_hybrid: True #False # sets fp8_format = recipe.Format.HYBRID
+  fp8_margin: 0 # scaling margin
+  fp8_interval: 1 # scaling update interval
+  fp8_amax_history_len: 128 # Number of steps for which amax history is recorded per tensor
+  fp8_amax_compute_algo: max # 'most_recent' or 'max'. Algorithm for computing amax from history
+  fp8_params: True
+  use_emha: False
+  ub_tp_comm_overlap: False
+  tp_comm_atomic_ag: False
+  tp_comm_atomic_rs: False
+  use_flash_attention: true
+  distributed_adam_bucket_merge_size: 4
+  optim:
+    name: distributed_fused_adam
+    lr: 0.0001
+    weight_decay: 0.1
+    betas:
+      - 0.9
+      - 0.95
+    bucket_cap_mb: 400
+    overlap_grad_sync: true
+    overlap_param_sync: true
+    contiguous_grad_buffer: true    
+    contiguous_param_buffer: true   
+    sched:
+      name: CosineAnnealing
+      warmup_steps: 500
+      constant_steps: 0
+      min_lr: 1e-5
+  data:
+    data_impl: mock #mmap
+    splits_string: "90,8,2"
+    seq_length: 4096
+    skip_warmup: true
+    num_workers: 4
+    exchange_indices_distributed: true
+    dataloader_type: single
+    reset_position_ids: false
+    reset_attention_mask: false
+    eod_mask_loss: false
+    index_mapping_dir: /data/trimmed/idx
+    data_prefix:
+    - 1.0
+    - /data/trimmed/my-t5_00_text_document
+```
+
+3. Create a new training script called `train_llama2.sh` in the `launcher_scripts` directory.
+
+- Note the new `llama2_7b_bootcamp` config being used for training. View `conf/config.yaml` to see the different workflows available through NeMo.
+- To enable the workload to utilise fastrak networking, the host node's tcpxo binaries are mounted on the container 
+
 ```
 #!/bin/bash
 
@@ -197,65 +391,66 @@ source ../nemo_env/bin/activate
 MAX_STEPS=20
 NUM_NODES=2
 
+# Auth to access Llama HF repo
+HF_TOKEN=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
+
 python main.py \
     launcher_scripts_path=${PWD} \
     stages=[training] \
-    training=gpt3/5b \
+    training=llama/llama2_7b_bootcamp \
     env_vars.TRANSFORMERS_OFFLINE=0 \
-    container=../nemofw+tcpxo-24.05.sqsh \
-    container_mounts='["/var/lib/tcpxo/lib64"]' \
+    +env_vars.NCCL_TUNER_CONFIG_PATH=/var/lib/tcpxo/lib64/a3plus_tuner_config.textproto \
+    +env_vars.HF_TOKEN=${HF_TOKEN} \
+    container=../nemofw+tcpxo-dev.sqsh \
+    container_mounts="['/var/lib/tcpxo/lib64',${PWD}/data:/data]" \
     cluster.srun_args=["--container-writable"] \
-    training.model.data.data_impl=mock \
-    training.model.data.data_prefix=[] \
     training.trainer.max_steps=${MAX_STEPS} \
-    training.trainer.val_check_interval=${MAX_STEPS} \
-    training.trainer.limit_val_batches=0.0 \
-    training.exp_manager.create_checkpoint_callback=False \
-    training.exp_manager.resume_if_exists=False \
-    training.trainer.num_nodes=${NUM_NODES}
+    training.trainer.num_nodes=${NUM_NODES} \
+    training.trainer.val_check_interval=${MAX_STEPS}
 ```
 
-10. Submit a new job by running `train.sh`. This will result in NeMo generating new training job scripts and submitting to Slurm for execution.
+4. Run the training script with `bash train_llama2.sh`. This will result in NeMo automatically generating and submitting a slurm job using the user provided parameters in the script, and the NeMo training config
+
 ```
-bash train_gpt.sh
+# Generate and submit a NeMo training job
+bash train_llama2.sh
 ```
 
-11. Monitor the progress using Slurm command `watch squeue`. `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `docker images`.
+5. Monitor the progress using Slurm command `watch squeue`, where `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `watch docker images`.
 
-12. Check the generated .out and .err job logs under the `results/gpt3` directory.
+6. Under the `results/llama2_7b_bootcamp` directory, monitor the log files at `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.out` and `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.err`
 
-**Note: Connect to one of your A3 Mega VMs via SSH and run the nvitop tool (after activating the `nemo_env` virtual environment we created previously). This will allow you to see the real time GPU utilisation rates, which is useful for debugging or performance tuning eg. Low GPU memory utilisation rate likely means you have room to further increase performance!**
+Example output
+```
+~/hpc-toolkit/examples/machine-learning/a3-megagpu-8g/nemo-framework/launcher_scripts$ tail -f results/llama2_7b_bootcamp/log-nemo-megatron-llama2_7b_bootcamp_78.out 
+        weight_decay: 0.1
+    )
+[NeMo I 2024-07-22 12:05:15 lr_scheduler:948] Scheduler "<nemo.core.optim.lr_scheduler.CosineAnnealing object at 0x14efe819d8a0>" 
+    will be used during training (effective maximum steps = 15) - 
+    Parameters : 
+    (warmup_steps: 500
+    constant_steps: 0
+    min_lr: 1.0e-05
+    max_steps: 15
+    )
+Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.50, global_step=5.000, consumed_samples=12288.0, train_step_timing in s=49.50]
+```
+**Note: Connect to one of your A3 Mega VMs via SSH and run the nvitop tool (after activating the `nemo_env` virtual environment we created previously). This will allow you to see the real time GPU utilisation rates, which is useful for debugging or performance tuning eg. Low GPU memory utilisation rate likely means you have room to further increase performance! (or if your job is crashing with CUDA OOM)**
 
-### What is happening?
+7. Note the `train_step_timing in s=` value, as that shows the training throughput for the job for time it takes per global step (and global batch size).
 
-- To ensure performance through multi-NIC network through Fastrak, Slurm checks if the job has been submitted with 2 or more requested nodes as part of [Epilog stage](https://slurm.schedmd.com/prolog_epilog.html). This is similar to a start up script for every submitted job.
+### What is happening as the job is submitted?
+
+- To ensure performance through multi-NIC network through Fastrak, Slurm checks if the job has been submitted with 2 or more requested nodes as part of [Epilog stage](https://slurm.schedmd.com/prolog_epilog.html), in `/opt/apps/adm/slurm/scripts/rxdm`. This is similar to a start up script being run for every submitted Slurm job.
 - If the job needs Fastrak enabled, Slurm automatically starts the 2 x necessary sidecar NCCL and RxDM containers to run alongside the user job. This works the same for jobs running on GKE pods.
 - There is a one time pull of the NCCL and RxDM container images on A3 Mega nodes on the first submitted job. Subsequent jobs will use this cached container images for immediate job starts.
-- The NeMo framework from Nvidia is tightly integrated with Slurm (inc. AWS and Azure), where example configs and scripts are automatically generated when a new Slurm job is submitted. Check out `launcher_scripts/conf/config.yaml` and `launcher_scripts/conf` for preconfigured examples. 
-- In the GPT3_5b example job, `conf/training/gpt3/5b.yaml` is used for job hyperparameter configs
+- The NeMo framework from Nvidia is tightly integrated with Slurm (inc. AWS and Azure), where example configs and scripts are automatically generated when a new Slurm job is submitted. Take a look through `launcher_scripts/conf/config.yaml` and `launcher_scripts/conf/` for preconfigured workflow examples. 
 
-## Step 2: Run and optimise llama2 training job in your Slurm cluster
+9. **[Make a copy of this google sheets template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973)** to calculate your MFU and tokens/GPU/sec
 
-In this step, we'll be running a llama2 training job. Refer to yaml examples in `launcher_scripts/conf/training/llama` for pre-configured NeMo configurations.
+10. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
 
-1. Use slurm to run a command on your A3 mega nodes to install huggingface-cli and authenticate to access llama2 repo
-
-```
-srun -w <yourLdap>-a3meganodeset-[0-1] pip install huggingface-hub
-
-srun -w <yourLdap>-a3meganodeset-[0-1] huggingface-cli login --token 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
-```
-`Note: you can get the names of your nodes in the A3mega partition by using the sinfo command`
-
-2. Download the llama2 tokenizer
-
-3. Create a new training script called `train_llama.sh` in the `launcher_scripts` directory
-
-4. Note the training throughput in the .out log file. This is represented by `training_step_time_sec`
-
-5. Use the provided google sheets template to calculate your MFU and tokens/GPU/sec
-
-6. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
+- ikwak@ highscore: 14,170 tokens/sec/GPU with 68.47% MFU with 16 GPUs
 
 `Protip 1: Watch out! you may get CUDA OOM errors as you start modifying your training parameters. A hint is to start by lowering your micro_batch_size.`
 
