@@ -84,7 +84,7 @@ spec:
     metadata:
       labels:
         app: gemma-server
-        ai.gke.io/model: gemma-1.1-7b-it
+        ai.gke.io/model: gemma-7b-it
         ai.gke.io/inference-server: vllm
         examples.ai.gke.io/source: user-guide
     spec:
@@ -109,7 +109,7 @@ spec:
         - --tensor-parallel-size=2
         env:
         - name: MODEL_ID
-          value: google/gemma-1.1-7b-it
+          value: google/gemma-7b-it
         - name: HUGGING_FACE_HUB_TOKEN
           valueFrom:
             secretKeyRef:
@@ -196,11 +196,11 @@ The following output shows an example of the model response:
 
 ```json
 {
-    "prediction": "prompt:\n<start_of_turn>user\n$I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\noutput:\n**Python**\n\nHere are some reasons why Python is...",
+    "prediction": "prompt:\n<start_of_turn>user\n$I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\noutput:\nSure, here's my recommendation: Python.\n\nPython is a powerful and versatile programming language that is widely used in various industries, including data science, web development...",
     "benchmark": {
-        "total_elapsed_time": 5.413699760999975,
-        "total_tokens_generated": 137,
-        "throughput": 25.306168802884343
+        "total_elapsed_time": 14.734968054999968,
+        "total_tokens_generated": 371,
+        "throughput": 25.178201853930034
     }
 }
 ```
@@ -215,12 +215,12 @@ python archive/benchmark.py
 
 The output will be like:
 
-```bash
+```text
 ===== Result =====
 Iterations: 50
-Total Elapsed Time for Generation: 349.47 seconds
-Total Generated Tokens: 8874
-Average Throughput: 25.39 tokens/sec
+Total Elapsed Time for Generation: 540.43 seconds
+Total Generated Tokens: 13678
+Average Throughput: 25.31 tokens/sec
 ```
 
 > With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$).
@@ -269,7 +269,7 @@ spec:
     metadata:
       labels:
         app: gemma-server
-        ai.gke.io/model: gemma-1.1-7b-it
+        ai.gke.io/model: gemma-7b-it
         ai.gke.io/inference-server: vllm
         examples.ai.gke.io/source: user-guide
     spec:
@@ -294,7 +294,7 @@ spec:
         - --tensor-parallel-size=2
         env:
         - name: MODEL_ID
-          value: google/gemma-1.1-7b-it
+          value: google/gemma-7b-it
         - name: HUGGING_FACE_HUB_TOKEN
           valueFrom:
             secretKeyRef:
@@ -381,11 +381,11 @@ The following output shows an example of the model response:
 
 ```json
 {
-    "prediction": "prompt:\n<start_of_turn>user\n$I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\noutput:\n**Python**\n\n**Reasons:**\n\n* **Easy to read and write:** Python syntax is simple and concise, ...",
+    "prediction": "prompt:\n<start_of_turn>user\n$I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?<end_of_turn>\noutput:\n```\nSure, here's my recommendation: Python.\n\nPython is a user-friendly, general-purpose programming language that's widely used in various industries and is considered one of the easiest languages...",
     "benchmark": {
-        "total_elapsed_time": 1.5017438680000055,
-        "total_tokens_generated": 197,
-        "throughput": 131.18082530435828
+        "total_elapsed_time": 1.7916721450000068,
+        "total_tokens_generated": 238,
+        "throughput": 132.8368031306303
     }
 }
 ```
@@ -400,12 +400,12 @@ python archive/benchmark.py
 
 The output will be like:
 
-```bash
+```text
 ===== Result =====
 Iterations: 50
-Total Elapsed Time for Generation: 64.68 seconds
-Total Generated Tokens: 8598
-Average Throughput: 132.94 tokens/sec
+Total Elapsed Time for Generation: 92.92 seconds
+Total Generated Tokens: 12287
+Average Throughput: 132.23 tokens/sec
 ```
 
 > With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$)
