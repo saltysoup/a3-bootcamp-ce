@@ -98,14 +98,14 @@ Example (see values under `busbw` column)
 
 ## Step 1: Set up NeMo in your Slurm cluster
 
-1. After SSH'ing to your Slurm login node, clone the HPC toolkit repo
+1. SSH into your newly created Slurm login node, clone the HPC toolkit repo
 
 ```
 cd ~
 git clone https://github.com/GoogleCloudPlatform/hpc-toolkit.git && cd hpc-toolkit/examples/machine-learning/a3-megagpu-8g/nemo-framework
 ```
 
-2. Update `Dockerfile` to use the latest NeMo container
+2. Update `Dockerfile` to use the latest NeMo container. This will pull the latest NeMo container from Nvidia and set environment variables required for Fastrak.
 
 ```
 ARG NEMOFW_VERSION=dev
@@ -137,7 +137,7 @@ RUN echo "/var/lib/tcpxo/lib64" >> /etc/ld.so.conf.d/tcpxo.conf && ldconfig
 ENV LD_LIBRARY_PATH=/var/lib/tcpxo/lib64:$LD_LIBRARY_PATH
 ```
 
-3. Update `setup_nemo.sh` to use the latest NeMo container
+3. Update `setup_nemo.sh` to use the latest NeMo container. This will submit a Slurm job to a A3 Mega VM for building a new [squash file](https://github.com/NVIDIA/enroot/blob/master/doc/image-format.md) using the container image to allow [Enroot](https://github.com/NVIDIA/enroot) and [Pyxis](https://github.com/NVIDIA/pyxis) to run container workloads on Slurm.
 
 ```
 #!/bin/bash
@@ -414,7 +414,13 @@ bash train_llama2.sh
 
 5. Monitor the progress using Slurm command `watch squeue`, where `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `watch docker images`.
 
-6. Under the `results/llama2_7b_bootcamp` directory, monitor the log files at `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.out` and `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.err`
+- Useful Slurm commands
+  - `squeue` shows current job queue
+  - `sinfo` shows available queues to run jobs
+  - `scancel <jobID>` cancels a scheduled or running job
+  - `sacct -J <jobID>` shows historical info about previous job  
+
+6. Monitor the generated log files in `results/llama2_7b_bootcamp` directory. The file names are `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.out` and `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.err`
 
 Example output
 ```
