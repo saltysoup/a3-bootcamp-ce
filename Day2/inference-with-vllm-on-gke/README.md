@@ -186,10 +186,10 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 #### Send Inference Requests
 
-Now we can send inference requests using __archive/inference.py__. You can replace *user_prompt* with your own one for testing.
+Now we can send inference requests using __inference.py__. You can replace *user_prompt* with your own one for testing.
 
 ```bash
-python archive/inference.py
+python inference.py
 ```
 
 The following output shows an example of the model response:
@@ -207,10 +207,10 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __archive/benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
 
 ```bash
-python archive/benchmark.py
+python benchmark.py
 ```
 
 The output will be like:
@@ -371,10 +371,10 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 #### Send Inference Requests
 
-Now we can send inference requests using __archive/inference.py__. You can replace *user_prompt* with your own one for testing.
+Now we can send inference requests using __inference.py__. You can replace *user_prompt* with your own one for testing.
 
 ```bash
-python archive/inference.py
+python inference.py
 ```
 
 The following output shows an example of the model response:
@@ -392,10 +392,10 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __archive/benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
 
 ```bash
-python archive/benchmark.py
+python benchmark.py
 ```
 
 The output will be like:
