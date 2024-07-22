@@ -21,8 +21,8 @@ gcsDownload: # downloads or synchronizes contents of a GCS bucket folder on init
   target: "/ssd/.cache/"
 
 workload:
-  image: "us-central1-docker.pkg.dev/injae-sandbox-340804/a3-bootcamp-labs/nemofw-tcpxo:24.05.patched" #"us-central1-docker.pkg.dev/supercomputer-testing/sufkha-nemo-demo-test/nemo-benchmarks-v3:24.03.01.framework"
-  torchDistributedTarget: "/opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py"
+  image: "us-central1-docker.pkg.dev/injae-sandbox-340804/a3-bootcamp-labs/nemofw-tcpxo:dev" #"us-central1-docker.pkg.dev/supercomputer-testing/sufkha-nemo-demo-test/nemo-benchmarks-v3:24.03.01.framework"
+  torchDistributedTarget: "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py"
 
   # It will be mounted to /nfs on container startup using GCS fuse
   gcsBucketForDataCataPath: elm-benchmark

@@ -164,7 +164,7 @@ model:
     eod_mask_loss: false  # Mask loss for the end of document tokens            
     index_mapping_dir: null  # path to save index mapping .npy files, by default will save in the same location as data_prefix
   distributed_adam_bucket_merge_size: 4
-  fp8_params: true
+  fp8_params: false
 
   nsys_profile:
     enabled: true

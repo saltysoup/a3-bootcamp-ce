@@ -87,16 +87,11 @@ gcloud beta container node-pools create ${NODE_POOL_NAME} --region ${REGION} --n
 # Check the driver installer and gpu device plugin
 kubectl get pod -n kube-system
 # Output
-nvidia-driver-installer-6pm95                1/1     Running   0          4h7m
-nvidia-driver-installer-wmdht                1/1     Running   0          4h7m
 nvidia-gpu-device-plugin-large-cos-2z7p7     1/1     Running   0          4h12m
 nvidia-gpu-device-plugin-large-cos-p4dn5     1/1     Running   0          4h12m
 ```
 > Note: The GPU driver is by default installed with `ACCELERATOR_ARG="type=nvidia-h100-mega-80gb,count=8, gpu-driver-version=latest"` in the last step. Otherwise, apply the following command to manually install the driver.
 
-```
-kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded-latest.yaml
-```
 
 ## Step 5: Verify count of nvidia.com/gpu resources on node
 
@@ -213,11 +208,25 @@ Here is the example result for the nccl-test workload:
 
 If you are using the compact placement or gSC shared reservation when creating A3+ nodepool, you can set up topology awareness configuration to gain better network performance.
 
-Please check README.md on the external github for an example of how to take advantage of the performance boosts of this feature.
+### Please check README.md on the external github for an example of how to take advantage of the performance boosts of this feature.
 ---
-### By now you have built a GKE cluster that passed the NCCL testing, let's try some training job on it! 
+### *By now you have built a GKE cluster that passed the NCCL testing, let's try some training job on it!*
 
-###
+### Step 7.1: Deploy LLama2-7b training job via using helm:
+```
+helm install NAME-OF-YOUR-JOB helm-context/
+```
+You should see some output like this:
+```
+NAME: felix
+LAST DEPLOYED: Mon Jul 22 01:14:14 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+### Step 7.2: Check your training job
+```
 
 
 

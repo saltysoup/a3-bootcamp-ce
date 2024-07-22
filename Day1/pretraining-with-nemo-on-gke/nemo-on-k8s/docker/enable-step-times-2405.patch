@@ -1,7 +1,7 @@
-#diff --git a/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py b/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py
-#index 0cea03fd5..91b3409a4 100644
-#--- a/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py
-#+++ b/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py
+diff --git a/examples/nlp/language_modeling/megatron_gpt_pretraining.py b/examples/nlp/language_modeling/megatron_gpt_pretraining.py
+index 0cea03fd5..91b3409a4 100644
+--- a/examples/nlp/language_modeling/megatron_gpt_pretraining.py
++++ b/examples/nlp/language_modeling/megatron_gpt_pretraining.py
 @@ -23,6 +23,12 @@ from importlib.metadata import version
  from typing import Any, Dict, Iterator, List, Optional, Union
  
@@ -75,3 +75,5 @@
      def training_step(self, dataloader_iter):
          """
              We pass the dataloader iterator function to the micro-batch scheduler.
+History
+References
