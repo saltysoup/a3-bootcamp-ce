@@ -108,7 +108,7 @@ git clone https://github.com/GoogleCloudPlatform/hpc-toolkit.git && cd hpc-toolk
 2. Update `Dockerfile` to use the latest NeMo container
 
 ```
-ARG NEMOFW_VERSION=24.05
+ARG NEMOFW_VERSION=dev
 FROM nvcr.io/nvidia/nemo:${NEMOFW_VERSION}
 
 ENV NCCL_FASTRAK_CTRL_DEV=enp0s12
@@ -131,13 +131,10 @@ ENV NCCL_NET_GDR_LEVEL=PIX
 ENV NCCL_FASTRAK_ENABLE_HOTPATH_LOGGING=0
 ENV NCCL_FASTRAK_USE_LLCM=1
 ENV NCCL_FASTRAK_LLCM_DEVICE_DIRECTORY=/dev/aperture_devices
+ENV NCCL_TUNER_CONFIG_PATH=/var/lib/tcpxo/lib64/a3plus_tuner_config.textproto
 
 RUN echo "/var/lib/tcpxo/lib64" >> /etc/ld.so.conf.d/tcpxo.conf && ldconfig
 ENV LD_LIBRARY_PATH=/var/lib/tcpxo/lib64:$LD_LIBRARY_PATH
-
-# Replace with latest NeMo code for bucket merge optimisation
-RUN cd /opt && rm -r NeMo
-RUN cd /opt && git clone https://github.com/NVIDIA/NeMo.git
 ```
 
 3. Update `setup_nemo.sh` to use the latest NeMo container
@@ -149,16 +146,16 @@ RUN cd /opt && git clone https://github.com/NVIDIA/NeMo.git
 #SBATCH --partition=a3mega
 #SBATCH --exclusive
 
-: "${NEMOFW_VERSION:=24.05}"
+: "${NEMOFW_VERSION:=dev}"
 
-srun docker build --build-arg="NEMOFW_VERSION=${NEMOFW_VERSION}" -t nemofw:tcpxo-"${NEMOFW_VERSION}-patched" .
-srun rm -f nemofw+tcpxo-"${NEMOFW_VERSION}-patched".sqsh
-srun enroot import dockerd://nemofw:tcpxo-"${NEMOFW_VERSION}-patched"
+srun docker build --build-arg="NEMOFW_VERSION=${NEMOFW_VERSION}" -t nemofw:tcpxo-"${NEMOFW_VERSION}" .
+srun rm -f nemofw+tcpxo-"${NEMOFW_VERSION}".sqsh
+srun enroot import dockerd://nemofw:tcpxo-"${NEMOFW_VERSION}"
 
 srun \
-	--container-mounts="${PWD}":/workspace/mount_dir,/var/tmp:/var/tmp \
-	--container-image=./nemofw+tcpxo-"${NEMOFW_VERSION}-patched".sqsh \
-	bash -c "cp -r /opt/NeMo-Framework-Launcher/requirements.txt /opt/NeMo-Framework-Launcher/launcher_scripts /opt/NeMo-Framework-Launcher/auto_configurator /workspace/mount_dir/"
+        --container-mounts="${PWD}":/workspace/mount_dir,/var/tmp:/var/tmp \
+        --container-image=./nemofw+tcpxo-"${NEMOFW_VERSION}".sqsh \
+        bash -c "cp -r /opt/NeMo-Framework-Launcher/requirements.txt /opt/NeMo-Framework-Launcher/launcher_scripts /opt/NeMo-Framework-Launcher/auto_configurator /workspace/mount_dir/"
 ```
 
 4. Set up NeMo container by submitting a slurm job. This will build a local sqsh file in your filestore home directory, and make a local copy of the scripts and requirements.txt file.
@@ -257,7 +254,7 @@ exp_manager:
 model:
   mcore_gpt: true
   micro_batch_size: 1
-  global_batch_size: 1024 #2048
+  global_batch_size: 2048 #1024
   rampup_batch_size: null
   tensor_model_parallel_size: 1
   pipeline_model_parallel_size: 1
@@ -388,7 +385,7 @@ model:
 
 source ../nemo_env/bin/activate
 
-MAX_STEPS=20
+MAX_STEPS=15
 NUM_NODES=2
 
 # Auth to access Llama HF repo
@@ -399,7 +396,6 @@ python main.py \
     stages=[training] \
     training=llama/llama2_7b_bootcamp \
     env_vars.TRANSFORMERS_OFFLINE=0 \
-    +env_vars.NCCL_TUNER_CONFIG_PATH=/var/lib/tcpxo/lib64/a3plus_tuner_config.textproto \
     +env_vars.HF_TOKEN=${HF_TOKEN} \
     container=../nemofw+tcpxo-dev.sqsh \
     container_mounts="['/var/lib/tcpxo/lib64',${PWD}/data:/data]" \
@@ -448,7 +444,9 @@ Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.5
 
 9. **[Make a copy of this google sheets template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973)** to calculate your MFU and tokens/GPU/sec
 
-10. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
+## Step 3: Performance Tune and set a High Score!
+
+1. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
 
 - ikwak@ highscore: 14,170 tokens/sec/GPU with 68.47% MFU with 16 GPUs
 
