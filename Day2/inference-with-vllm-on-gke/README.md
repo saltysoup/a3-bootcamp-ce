@@ -1,6 +1,6 @@
 # Inference with vLLM on GKE
 
-> In this lab, you will learn how to deploy open LLMs (Gemma specifically) for serving on GKE.
+> In this lab, you will learn how to deploy open LLMs (Gemma specifically) for serving with GPUs on GKE.
 
 ## Prerequisites
 
@@ -32,17 +32,15 @@ kubectl config use-context ${CONTEXT_NAME_TO_SWITCH}
 
 Be sure to remember the above command, as we will deploy the same model on two different clusters.
 
-## Setting HuggingFace Access Token as a Secret
-
-Since we will download the model checkpoint from [HuggingFace](https://huggingface.co/), we need to prepare a HuggingFace access token.
-
 ### Gemma Access Request
 
 Go to [Gemma Model Card](https://huggingface.co/google/gemma-7b-it) to request access. (If it's not granted right away, please ask Minjae Kang(@minjkang) or Injae Kwak(@ikwak) for help.)
 
 ### HuggingFace Access Token Creation
 
-At the [settings](https://huggingface.co/settings/tokens) page, you can generate your access token. Make sure to set __Token type__ as __Read__ when you create the token.
+Since we will download the model checkpoint from [HuggingFace](https://huggingface.co/), we need to prepare a HuggingFace access token.
+
+At the [Settings](https://huggingface.co/settings/tokens) page, you can generate your access token. Make sure to set __Token type__ as __Read__ when you create the token.
 
 Run the following command after replacing __${YOUR_HF_ACCESS_TOKEN}__ with your own token. Set HuggingFace Access Token as an environment variable as follows:
 
@@ -69,6 +67,7 @@ kubectl create secret generic hf-secret \
 ```
 
 #### k8s Manifest Creation
+
 Let's create a k8s manifest named __gemma-vllm-l4.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
 
 ```yaml
