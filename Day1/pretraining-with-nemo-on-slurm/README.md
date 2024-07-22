@@ -435,14 +435,14 @@ Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.5
 
 7. Note the `train_step_timing in s=` value, as that shows the training throughput for the job for time it takes per global step (and global batch size).
 
+8. **[Make a copy of this google sheets template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973)** to calculate your MFU and tokens/GPU/sec
+
 ### What is happening as the job is submitted?
 
 - To ensure performance through multi-NIC network through Fastrak, Slurm checks if the job has been submitted with 2 or more requested nodes as part of [Epilog stage](https://slurm.schedmd.com/prolog_epilog.html), in `/opt/apps/adm/slurm/scripts/rxdm`. This is similar to a start up script being run for every submitted Slurm job.
 - If the job needs Fastrak enabled, Slurm automatically starts the 2 x necessary sidecar NCCL and RxDM containers to run alongside the user job. This works the same for jobs running on GKE pods.
 - There is a one time pull of the NCCL and RxDM container images on A3 Mega nodes on the first submitted job. Subsequent jobs will use this cached container images for immediate job starts.
 - The NeMo framework from Nvidia is tightly integrated with Slurm (inc. AWS and Azure), where example configs and scripts are automatically generated when a new Slurm job is submitted. Take a look through `launcher_scripts/conf/config.yaml` and `launcher_scripts/conf/` for preconfigured workflow examples. 
-
-9. **[Make a copy of this google sheets template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973)** to calculate your MFU and tokens/GPU/sec
 
 ## Step 3: Performance Tune and set a High Score!
 
