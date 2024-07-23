@@ -6,7 +6,9 @@
 
 This lab assumes you already have two GKE clusters up and running with GPU accelerators. (One with L4s attached, the other with H100s attached.) If not, you have to create clusters first.
 
-## (Optional) kubectl Context Creation
+## (Optional) Create kubectl Context
+
+> If you have set up k8s context already, you can skip this part.
 
 To connect to existing GKE clusters, you have to create ~/.kube/config contexts on your local machine. To do so, run the following. You have to replace __${CLUSTER_NAME}__ and __${REGION}__ with the corresponding value for your own environment.
 
@@ -56,7 +58,7 @@ Now it's time to deploy Gemma with vLLM to our clusters. We'll use [gemma-7b-it]
 
 We will start with deploying on the cluster with L4s first. Make sure your L4 cluster is selected as the current context before proceeding.
 
-#### Setting HuggingFace Access Token as a k8s Secret
+#### Set HuggingFace Access Token as a k8s Secret
 
 Run the following command to ingest your HuggingFace Access Token to the cluster.
 
@@ -66,7 +68,7 @@ kubectl create secret generic hf-secret \
 --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-#### k8s Manifest Creation
+#### Create k8s Manifest
 
 Let's create a k8s manifest named __gemma-vllm-l4.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
 
@@ -242,7 +244,7 @@ Make sure your H100 cluster is selected as the current context before proceeding
 kubectl config use-context ${NAME-OF-THE-CONTEXT-FOR-YOUR-H100-CLUSTER}
 ```
 
-#### Setting HuggingFace Access Token as a k8s Secret
+#### Set HuggingFace Access Token as a k8s Secret
 
 Run the following command to ingest your HuggingFace Access Token to the cluster.
 
@@ -252,7 +254,7 @@ kubectl create secret generic hf-secret \
 --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-#### k8s Manifest Creation
+#### Create k8s Manifest
 Let's create a k8s manifest named __gemma-vllm-h100.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
 
 ```yaml
