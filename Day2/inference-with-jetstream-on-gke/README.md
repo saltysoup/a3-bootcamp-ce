@@ -48,3 +48,5 @@ Given __kaggle.json__ file, run the following command to ingest your Kaggle Acce
 kubectl create secret generic kaggle-secret \
 --from-file=${YOUR-PATH-TO-kaggle.json}
 ```
+
+
