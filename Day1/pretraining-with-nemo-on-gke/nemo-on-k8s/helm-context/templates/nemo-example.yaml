@@ -11,7 +11,7 @@ metadata:
   name: "{{ .Release.Name }}" 
 data:
   nemo-configuration.yaml: |-
-{{ .Files.Get "llama2-7b-fp8.yaml" | nindent 4 }}
+{{ .Files.Get "selected-configuration.yaml" | nindent 4 }}
 ---
 apiVersion: v1
 kind: Service
@@ -468,7 +468,7 @@ spec:
             nsys profile -s none -t nvtx,cuda --capture-range=cudaProfilerApi --capture-range-end=stop \
             -o /gcs/nemo-experiments/$JOB_IDENTIFIER/rank-$RANK \
             --session-new "nemo-rank$RANK" \
-            python $TORCH_DISTRIBUTED_TARGET \
+            python3 $TORCH_DISTRIBUTED_TARGET \
             --config-path="/etc/workload-configuration" \
             --config-name="nemo-configuration.yaml" \
             +trainer.num_nodes="$NNODES" \
