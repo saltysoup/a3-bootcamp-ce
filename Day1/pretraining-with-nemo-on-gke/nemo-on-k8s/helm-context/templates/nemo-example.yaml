@@ -149,24 +149,24 @@ spec:
         mountPath: "{{ $gcs.mountPath }}"
       {{- end }}
 
-      env:
-      - name: GCS_DATA_SOURCE
-        value: "{{ $root.Values.gcsDownload.source }}"
-      - name: GCS_DATA_TARGET
-        value: "{{ $root.Values.gcsDownload.target }}"
-      command:
-        - /bin/sh
-        - -c
-        - |
-          echo "Caching training data from $GCS_DATA_SOURCE to $GCS_DATA_TARGET"
-          mkdir -p $GCS_DATA_TARGET
+      #env:
+      #- name: GCS_DATA_SOURCE
+      #  value: "{{ $root.Values.gcsDownload.source }}"
+      #- name: GCS_DATA_TARGET
+      #  value: "{{ $root.Values.gcsDownload.target }}"
+      #command:
+      #  - /bin/sh
+      #  - -c
+      #  - |
+      #    echo "Caching training data from $GCS_DATA_SOURCE to $GCS_DATA_TARGET"
+      #    mkdir -p $GCS_DATA_TARGET
 
-          SECONDS=0
-          gcloud storage rsync \
-            --recursive \
-            $GCS_DATA_SOURCE $GCS_DATA_TARGET
-          duration=$SECONDS
-          echo "Transferred or synchronized $GCS_DATA_SOURCE to $GCS_DATA_TARGET in $duration seconds."
+      #    SECONDS=0
+      #    gcloud storage rsync \
+      #      --recursive \
+      #      $GCS_DATA_SOURCE $GCS_DATA_TARGET
+      #    duration=$SECONDS
+      #    echo "Transferred or synchronized $GCS_DATA_SOURCE to $GCS_DATA_TARGET in $duration seconds."
 
     {{ if ne $root.Values.network.stack "tcp" }}
     - name: nccl-plugin-installer
@@ -270,8 +270,8 @@ spec:
         value: "{{ $root.Values.volumes.ssdMountPath }}"      
 
       # The following settings are specific to the Torch distributed launcher:
-      - name: GCS_FUSE_BUCKET
-        value: "{{ $root.Values.workload.gcsBucketForDataCataPath }}"
+      #- name: GCS_FUSE_BUCKET
+      #  value: "{{ $root.Values.workload.gcsBucketForDataCataPath }}"
       - name: TORCH_DISTRIBUTED_TARGET
         value: "{{ $root.Values.workload.torchDistributedTarget }}"
       - name: TORCH_DISTRIBUTED_TRACING
@@ -414,10 +414,10 @@ spec:
         echo "Running nvidia-smi"
         nvidia-smi
 
-        mkdir -p /gcs
-        gcsfuse --client-protocol http2 $GCS_FUSE_BUCKET /gcs 
+        #mkdir -p /gcs
+        #gcsfuse --client-protocol http2 $GCS_FUSE_BUCKET /gcs 
 
-        mkdir -p /gcs/index_mapping_dir
+        #mkdir -p /gcs/index_mapping_dir
 
         # export LD_LIBRARY_PATH="/usr/local/nccl-plugin/lib64:/usr/local/cuda-12.3/lib64:/usr/local/nvidia/lib64/:${LD_LIBRARY_PATH}"
         export LD_LIBRARY_PATH="/usr/local/nccl-plugin/lib64:/usr/local/nvidia/lib64/:${LD_LIBRARY_PATH}"
@@ -430,12 +430,12 @@ spec:
         echo "Contents of /usr/local/nccl-plugin/lib64:"
         ls /usr/local/nccl-plugin/lib64 | sed 's/^/  /'
 
-        touch $SSD_MOUNT_PATH/hello-from-$HOSTNAME.txt
-        echo "Local SSD contents (path $SSD_MOUNT_PATH):"; ls $SSD_MOUNT_PATH | sed 's/^/  /'
+        #touch $SSD_MOUNT_PATH/hello-from-$HOSTNAME.txt
+        #echo "Local SSD contents (path $SSD_MOUNT_PATH):"; ls $SSD_MOUNT_PATH | sed 's/^/  /'
 
-        echo "Downloading GPT vocabulary files"
-        wget https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-vocab.json &&\
-        wget https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-merges.txt
+        #echo "Downloading GPT vocabulary files"
+        #wget https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-vocab.json &&\
+        #wget https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-merges.txt
 
         echo "NeMo configuration file:"                                         
         cat /etc/workload-configuration/nemo-configuration.yaml | sed 's/^/| /' 
@@ -451,11 +451,11 @@ spec:
         mount /tmp -o remount,exec 
         chmod -R a+rwx /tmp
 
-        echo "Checking for presence of nsys:"                                   
-        which nsys  
+        #echo "Checking for presence of nsys:"                                   
+        #which nsys  
 
-        echo "Nsight profiling will go to /gcs/nemo-experiments/$JOB_IDENTIFIER/."
-        mkdir -p /gcs/nemo-experiments/$JOB_IDENTIFIER/
+        #echo "Nsight profiling will go to /gcs/nemo-experiments/$JOB_IDENTIFIER/."
+        #mkdir -p /gcs/nemo-experiments/$JOB_IDENTIFIER/
 
         apt -y update && apt -y install gdb python3.10-dbg
 
@@ -465,10 +465,7 @@ spec:
           RANK=$((8*$NODE_RANK + $LOCAL_RANK))                                  
          
           OMP_NUM_THREADS=12 RANK=$RANK LOCAL_RANK=$LOCAL_RANK \
-            nsys profile -s none -t nvtx,cuda --capture-range=cudaProfilerApi --capture-range-end=stop \
-            -o /gcs/nemo-experiments/$JOB_IDENTIFIER/rank-$RANK \
-            --session-new "nemo-rank$RANK" \
-            python3 $TORCH_DISTRIBUTED_TARGET \
+            python $TORCH_DISTRIBUTED_TARGET \
             --config-path="/etc/workload-configuration" \
             --config-name="nemo-configuration.yaml" \
             +trainer.num_nodes="$NNODES" \

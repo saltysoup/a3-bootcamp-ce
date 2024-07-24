@@ -152,7 +152,7 @@ model:
     grad_sync_dtype: bf16
   data:
     # mock_dataset: true 
-    data_impl: mmap                                                             
+    data_impl: mock #mmap                                                             
     splits_string: "90,8,2"                                                  
     seq_length: 4096
     skip_warmup: true                                                           
@@ -167,7 +167,7 @@ model:
   fp8_params: false
 
   nsys_profile:
-    enabled: true
+    enabled: false #true
     start_step: 40  # Global batch to start profiling
     end_step: 43 # Global batch to end profiling
     ranks: [ 0 ] # Global rank IDs to profile
