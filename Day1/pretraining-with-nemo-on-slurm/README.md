@@ -108,7 +108,7 @@ git clone https://github.com/GoogleCloudPlatform/hpc-toolkit.git && cd hpc-toolk
 2. Update `Dockerfile` to use the latest NeMo container. This will pull the latest NeMo container from Nvidia and set environment variables required for Fastrak.
 
 ```
-ARG NEMOFW_VERSION=dev
+ARG NEMOFW_VERSION=llama3.1
 FROM nvcr.io/nvidia/nemo:${NEMOFW_VERSION}
 
 ENV NCCL_FASTRAK_CTRL_DEV=enp0s12
@@ -146,7 +146,7 @@ ENV LD_LIBRARY_PATH=/var/lib/tcpxo/lib64:$LD_LIBRARY_PATH
 #SBATCH --partition=a3mega
 #SBATCH --exclusive
 
-: "${NEMOFW_VERSION:=dev}"
+: "${NEMOFW_VERSION:=llama3.1}"
 
 srun docker build --build-arg="NEMOFW_VERSION=${NEMOFW_VERSION}" -t nemofw:tcpxo-"${NEMOFW_VERSION}" .
 srun rm -f nemofw+tcpxo-"${NEMOFW_VERSION}".sqsh
@@ -397,7 +397,7 @@ python main.py \
     training=llama/llama2_7b_bootcamp \
     env_vars.TRANSFORMERS_OFFLINE=0 \
     +env_vars.HF_TOKEN=${HF_TOKEN} \
-    container=../nemofw+tcpxo-dev.sqsh \
+    container=../nemofw+tcpxo-llama3.1.sqsh \
     container_mounts="['/var/lib/tcpxo/lib64',${PWD}/data:/data]" \
     cluster.srun_args=["--container-writable"] \
     training.trainer.max_steps=${MAX_STEPS} \
