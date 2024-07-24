@@ -133,7 +133,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
   metadata:
     name: maxengine-server
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       matchLabels:
         app: maxengine-server
@@ -169,7 +169,8 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
             limits:
               google.com/tpu: 8
         - name: jetstream-http
-          image: us-docker.pkg.dev/cloud-tpu-images/inference/jetstream-http:v0.2.2
+          image: minjkang/a3-bootcamp-lab4-jetstream-http:latest
+          imagePullPolicy: Always
           ports:
           - containerPort: 8000
   ---

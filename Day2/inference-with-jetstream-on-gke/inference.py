@@ -7,6 +7,8 @@ if __name__ == "__main__":
 
     req_body = {
         "prompt": f"<start_of_turn>user\n${user_prompt}<end_of_turn>\n",
+        # "temperature": 0.90,
+        # "top_p": 1.0,
         "max_tokens": 1024
     }
 
