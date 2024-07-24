@@ -1,0 +1,606 @@
+Pod on gke-apacaiinfra-a3plus-multi-nic-a7c5e69e-lhwh.asia-northeast1-b.c.injae-sandbox-340804.internal is running
+Pod is assigned job index of 0
+Job ID is h-1721709175-dmrd
+Running nvidia-smi
+Tue Jul 23 04:33:10 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.90.07              Driver Version: 550.90.07      CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off |   00000000:04:00.0 Off |                    0 |
+| N/A   34C    P0             72W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA H100 80GB HBM3          Off |   00000000:05:00.0 Off |                    0 |
+| N/A   32C    P0             68W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA H100 80GB HBM3          Off |   00000000:0B:00.0 Off |                    0 |
+| N/A   34C    P0             68W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA H100 80GB HBM3          Off |   00000000:0C:00.0 Off |                    0 |
+| N/A   32C    P0             66W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   4  NVIDIA H100 80GB HBM3          Off |   00000000:84:00.0 Off |                    0 |
+| N/A   33C    P0             69W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   5  NVIDIA H100 80GB HBM3          Off |   00000000:85:00.0 Off |                    0 |
+| N/A   32C    P0             70W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   6  NVIDIA H100 80GB HBM3          Off |   00000000:8B:00.0 Off |                    0 |
+| N/A   33C    P0             65W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   7  NVIDIA H100 80GB HBM3          Off |   00000000:8C:00.0 Off |                    0 |
+| N/A   32C    P0             71W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+bash: line 14: gcsfuse: command not found
+Warning: Set LD_LIBRARY_PATH=/usr/local/nccl-plugin/lib64:/usr/local/nvidia/lib64/:/var/lib/tcpxo/lib64:/usr/local/lib/python3.10/dist-packages/torch/lib:/usr/local/lib/python3.10/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/tensorrt/lib to override the NCCL library
+/sbin/ldconfig.real: /usr/local/nvidia/lib64/libnccl-net.so is not a symbolic link
+
+Added /usr/local/nvidia/lib64/ to ldconfig:
+        libcudart.so.12 (libc6,x86-64) => /usr/local/cuda/targets/x86_64-linux/lib/libcudart.so.12
+        libcudart.so (libc6,x86-64) => /usr/local/cuda/targets/x86_64-linux/lib/libcudart.so
+        libcudadebugger.so.1 (libc6,x86-64) => /usr/local/nvidia/lib64/libcudadebugger.so.1
+        libcuda_wrapper.so.0 (libc6,x86-64) => /opt/hpcx/clusterkit/lib/libcuda_wrapper.so.0
+        libcuda_wrapper.so (libc6,x86-64) => /opt/hpcx/clusterkit/lib/libcuda_wrapper.so
+        libcuda.so.1 (libc6,x86-64) => /usr/local/nvidia/lib64/libcuda.so.1
+        libcuda.so (libc6,x86-64) => /usr/local/nvidia/lib64/libcuda.so
+Contents of /usr/local/nccl-plugin/lib64:
+  a3plus_guest_config.textproto
+  a3plus_tuner_config.textproto
+  libnccl-net.so
+  libnccl-net_internal.so
+  libnccl-tcpx.so
+  libnccl-tcpxo.so
+  libnccl-tuner.so
+  libnccl.so
+  libnccl.so.2
+  libnccl.so.2.21.5
+  nccl-env-profile.sh
+Local SSD contents (path /ssd):
+  containerd
+  hello-from-gke-apacaiinfra-a3plus-multi-nic-a7c5e69e-lhwh.txt
+  kubelet
+  log_pods
+  lost+found
+Downloading GPT vocabulary files
+--2024-07-23 04:33:11--  https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-vocab.json
+Resolving s3.amazonaws.com (s3.amazonaws.com)... 52.217.74.240, 52.216.104.197, 16.182.42.176, ...
+Connecting to s3.amazonaws.com (s3.amazonaws.com)|52.217.74.240|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1042301 (1018K) [application/json]
+Saving to: ‘gpt2-vocab.json’
+
+     0K .......... .......... .......... .......... ..........  4%  327K 3s
+    50K .......... .......... .......... .......... ..........  9%  328K 3s
+   100K .......... .......... .......... .......... .......... 14%  142M 2s
+   150K .......... .......... .......... .......... .......... 19%  328K 2s
+   200K .......... .......... .......... .......... .......... 24%  176M 1s
+   250K .......... .......... .......... .......... .......... 29%  173M 1s
+   300K .......... .......... .......... .......... .......... 34%  169M 1s
+   350K .......... .......... .......... .......... .......... 39%  330K 1s
+   400K .......... .......... .......... .......... .......... 44%  125M 1s
+   450K .......... .......... .......... .......... .......... 49% 61.5M 1s
+   500K .......... .......... .......... .......... .......... 54% 24.2M 1s
+   550K .......... .......... .......... .......... .......... 58% 22.8M 0s
+   600K .......... .......... .......... .......... .......... 63%  145M 0s
+   650K .......... .......... .......... .......... .......... 68%  137M 0s
+   700K .......... .......... .......... .......... .......... 73%  174M 0s
+   750K .......... .......... .......... .......... .......... 78%  342K 0s
+   800K .......... .......... .......... .......... .......... 83%  216M 0s
+   850K .......... .......... .......... .......... .......... 88%  175M 0s
+   900K .......... .......... .......... .......... .......... 93% 99.4M 0s
+   950K .......... .......... .......... .......... .......... 98%  130M 0s
+  1000K .......... .......                                    100%  472M=0.8s
+
+2024-07-23 04:33:13 (1.30 MB/s) - ‘gpt2-vocab.json’ saved [1042301/1042301]
+
+--2024-07-23 04:33:13--  https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-merges.txt
+Resolving s3.amazonaws.com (s3.amazonaws.com)... 16.182.38.112, 52.216.245.174, 54.231.198.120, ...
+Connecting to s3.amazonaws.com (s3.amazonaws.com)|16.182.38.112|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 456318 (446K) [text/plain]
+Saving to: ‘gpt2-merges.txt’
+
+     0K .......... .......... .......... .......... .......... 11%  324K 1s
+    50K .......... .......... .......... .......... .......... 22%  325K 1s
+   100K .......... .......... .......... .......... .......... 33% 79.7M 1s
+   150K .......... .......... .......... .......... .......... 44%  326K 1s
+   200K .......... .......... .......... .......... .......... 56%  463M 0s
+   250K .......... .......... .......... .......... .......... 67%  246M 0s
+   300K .......... .......... .......... .......... .......... 78% 78.7M 0s
+   350K .......... .......... .......... .......... .......... 89%  326K 0s
+   400K .......... .......... .......... .......... .....     100%  394M=0.6s
+
+2024-07-23 04:33:14 (722 KB/s) - ‘gpt2-merges.txt’ saved [456318/456318]
+
+NeMo configuration file:
+| 
+| run:
+|   name: llama2_7b_fp8_mbs2__bucket2
+|   results_dir:
+|   time_limit: 0:10:00
+|   dependency: singleton
+| trainer:
+|   devices: 8
+|   accelerator: gpu
+|   precision: bf16
+|   logger: false
+|   enable_checkpointing: false
+|   use_distributed_sampler: false
+|   max_epochs: null
+|   max_steps: 500
+|   max_time: 05:23:30:00
+|   log_every_n_steps: 1
+|   val_check_interval: 500
+|   limit_val_batches: 32
+|   limit_test_batches: 50
+|   accumulate_grad_batches: 1
+|   gradient_clip_val: 1.0
+| exp_manager:
+|   explicit_log_dir:
+|   exp_dir: null
+|   name: megatron_llama
+|   create_wandb_logger: false
+|   resume_if_exists: false
+|   resume_ignore_no_checkpoint: true
+|   create_checkpoint_callback: false
+|   checkpoint_callback_params:
+|     monitor: val_loss
+|     save_top_k: 10
+|     mode: min
+|     always_save_nemo: false
+|     save_nemo_on_train_end: false
+|     model_parallel_size: 1
+|   log_step_timing: true
+|   step_timing_kwargs:
+|     sync_cuda: true
+|     buffer_size: 5
+|   create_tensorboard_logger: false
+| model:
+|   mcore_gpt: true
+|   micro_batch_size: 2
+|   global_batch_size: 1024
+|   rampup_batch_size: null
+|   tensor_model_parallel_size: 1
+|   pipeline_model_parallel_size: 1
+|   virtual_pipeline_model_parallel_size: null
+|   encoder_seq_length: 4096
+|   max_position_embeddings: 4096
+|   num_layers: 32
+|   hidden_size: 4096
+|   ffn_hidden_size: 11008
+|   num_attention_heads: 32
+|   init_method_std: 0.01
+|   use_scaled_init_method: true
+|   hidden_dropout: 0.0
+|   attention_dropout: 0.0
+|   ffn_dropout: 0.0
+|   kv_channels: null
+|   apply_query_key_layer_scaling: true
+|   normalization: rmsnorm
+|   layernorm_epsilon: 1.0e-05
+|   do_layer_norm_weight_decay: false
+|   make_vocab_size_divisible_by: 128
+|   pre_process: true
+|   post_process: true
+|   persist_layer_norm: true
+|   bias: false
+|   activation: fast-swiglu
+|   headscale: false
+|   transformer_block_type: pre_ln
+|   openai_gelu: false
+|   normalize_attention_scores: true
+|   position_embedding_type: rope
+|   rotary_percentage: 1.0
+|   apply_rope_fusion: true
+|   attention_type: multihead
+|   share_embeddings_and_output_weights: false
+|   tokenizer:
+|     library: 'megatron'
+|     type: 'GPT2BPETokenizer'
+|     model: null
+|     delimiter: null  # only used for tabular tokenizer
+|     vocab_file: gpt2-vocab.json
+|     merge_file: gpt2-merges.txt
+| #   
+| #  tokenizer:
+| #    library: sentencepiece
+| #    type: null
+| #    model:
+| #    delimiter: null
+| #    vocab_file: null
+| #    merge_file: null
+| #    sentencepiece_legacy: false
+|   native_amp_init_scale: 4294967296
+|   native_amp_growth_interval: 1000
+|   hysteresis: 2
+|   fp32_residual_connection: false
+|   fp16_lm_cross_entropy: false
+|   megatron_amp_O2: true
+|   grad_allreduce_chunk_size_mb: 100
+|   grad_div_ar_fusion: true
+|   gradient_accumulation_fusion: true
+|   bias_activation_fusion: true
+|   bias_dropout_add_fusion: true
+|   masked_softmax_fusion: true
+|   seed: 1234
+|   resume_from_checkpoint: null
+|   use_cpu_initialization: false
+|   onnx_safe: false
+|   apex_transformer_log_level: 30
+|   gradient_as_bucket_view: true
+|   sync_batch_comm: false
+|   activations_checkpoint_granularity: null
+|   activations_checkpoint_method: block
+|   activations_checkpoint_num_layers: 0
+|   num_micro_batches_with_partial_activation_checkpoints: null
+|   activations_checkpoint_layers_per_pipeline: null
+|   sequence_parallel: false
+|   transformer_engine: true
+|   fp8: false
+|   fp8_e4m3: false
+|   fp8_hybrid: true
+|   fp8_margin: 0
+|   fp8_interval: 1
+|   fp8_amax_history_len: 128
+|   fp8_amax_compute_algo: max
+|   use_emha: false
+|   ub_tp_comm_overlap: false
+|   tp_comm_atomic_ag: false
+|   tp_comm_atomic_rs: false
+|   use_flash_attention: true
+|   optim:
+|     name: distributed_fused_adam
+|     lr: 0.0001
+|     weight_decay: 0.1
+|     betas:
+|     - 0.9
+|     - 0.95
+|     bucket_cap_mb: 400
+|     overlap_grad_sync: true
+|     overlap_param_sync: true
+|     contiguous_grad_buffer: true
+|     contiguous_param_buffer: true
+|     sched:
+|       name: CosineAnnealing
+|       warmup_steps: 500
+|       constant_steps: 0
+|       min_lr: 1.0e-05
+|     grad_sync_dtype: bf16
+|   data:
+|     # mock_dataset: true 
+|     data_impl: mmap                                                             
+|     splits_string: "90,8,2"                                                  
+|     seq_length: 4096
+|     skip_warmup: true                                                           
+|     num_workers: 4                                                              
+|     exchange_indices_distributed: true
+|     dataloader_type: single  # cyclic                                           
+|     reset_position_ids: false  # Reset position ids after end-of-document token 
+|     reset_attention_mask: false  # Reset attention mask after end-of-document token
+|     eod_mask_loss: false  # Mask loss for the end of document tokens            
+|     index_mapping_dir: null  # path to save index mapping .npy files, by default will save in the same location as data_prefix
+|   distributed_adam_bucket_merge_size: 4
+|   fp8_params: false
+| 
+|   nsys_profile:
+|     enabled: true
+|     start_step: 40  # Global batch to start profiling
+|     end_step: 43 # Global batch to end profiling
+|     ranks: [ 0 ] # Global rank IDs to profile
+|     gen_shape: False # Generate model and kernel details including input shapes
+Detected the following additional workload arguments:
+  +exp_manager.explicit_log_dir=/nemo-experiments/results
+  +model.data.data_prefix=[1.0,/ssd/.cache/wikipedia-tokenized-for-gpt2]
+  +model.data.index_mapping_dir=/gcs/index_mapping_dir
+  +exp_manager.exp_dir=/nemo-experiments/
+Checking for presence of nsys:
+/usr/local/cuda/bin/nsys
+Nsight profiling will go to /gcs/nemo-experiments/h-1721709175-dmrd/.
+** test 1 **
+Looking in indexes: https://pypi.org/simple, https://pypi.ngc.nvidia.com
+Requirement already satisfied: megatron_core in /opt/megatron-lm (0.9.0rc0)
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+[notice] A new release of pip is available: 24.0 -> 24.1.2
+[notice] To update, run: python -m pip install --upgrade pip
+Launching Torch distributed as node rank 0 out of 2 nodes
+Launched rank 0 with PID 57
+Launched rank 1 with PID 58
+Launched rank 2 with PID 59
+Launched rank 3 with PID 60
+Launched rank 4 with PID 61
+Launched rank 5 with PID 62
+Launched rank 6 with PID 63
+Launched rank 7 with PID 64
+Waiting on Torch PID 57
+WARNING: GPU initialization took too long. Please run the NVIDIA persistence daemon.
+For more information, visit the following page:
+https://docs.nvidia.com/deploy/driver-persistence/index.html#persistence-daemon
+
+WARNING: GPU initialization took too long. Please run the NVIDIA persistence daemon.
+For more information, visit the following page:
+https://docs.nvidia.com/deploy/driver-persistence/index.html#persistence-daemon
+
+WARNING: GPU initialization took too long. Please run the NVIDIA persistence daemon.
+For more information, visit the following page:
+https://docs.nvidia.com/deploy/driver-persistence/index.html#persistence-daemon
+
+WARNING: GPU initialization took too long. Please run the NVIDIA persistence daemon.
+For more information, visit the following page:
+https://docs.nvidia.com/deploy/driver-persistence/index.html#persistence-daemon
+
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+Generated:
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py:28: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import packaging
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Generated:
+Generated:
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Generated:
+Waiting on Torch PID 58
+Waiting on Torch PID 59
+Waiting on Torch PID 60
+Generated:
+Waiting on Torch PID 61
+Waiting on Torch PID 62
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Traceback (most recent call last):
+  File "/opt/NeMo/nemo/collections/nlp/models/language_modeling/megatron_gpt_model.py", line 34, in <module>
+    from nemo.collections.nlp.data.language_modeling.megatron.data_samplers import (
+  File "/opt/NeMo/nemo/collections/nlp/__init__.py", line 15, in <module>
+    from nemo.collections.nlp import data, losses, models, modules
+  File "/opt/NeMo/nemo/collections/nlp/data/__init__.py", line 42, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.data.zero_shot_intent_recognition.zero_shot_intent_dataset import (
+  File "/opt/NeMo/nemo/collections/nlp/data/zero_shot_intent_recognition/zero_shot_intent_dataset.py", line 30, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/__init__.py", line 17, in <module>
+    from nemo.collections.nlp.parts.utils_funcs import list2str, tensor2list
+  File "/opt/NeMo/nemo/collections/nlp/parts/utils_funcs.py", line 37, in <module>
+    from nemo.collections.nlp.modules.common.megatron.utils import ApproxGELUActivation, erf_gelu
+  File "/opt/NeMo/nemo/collections/nlp/modules/__init__.py", line 16, in <module>
+    from nemo.collections.nlp.modules.common import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/__init__.py", line 36, in <module>
+    from nemo.collections.nlp.modules.common.tokenizer_utils import get_tokenizer, get_tokenizer_list
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/tokenizer_utils.py", line 28, in <module>
+    from nemo.collections.nlp.parts.nlp_overrides import HAVE_MEGATRON_CORE
+  File "/opt/NeMo/nemo/collections/nlp/parts/nlp_overrides.py", line 68, in <module>
+    from nemo.collections.nlp.modules.common.megatron.transformer import AutocastTransformerLayer, ParallelTransformerLayer
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/transformer.py", line 27, in <module>
+    from nemo.collections.nlp.modules.common.megatron.adapters.parallel_adapters import (
+  File "/opt/NeMo/nemo/collections/nlp/modules/common/megatron/adapters/parallel_adapters.py", line 27, in <module>
+    from megatron.core.dist_checkpointing.mapping import ShardedStateDict
+ModuleNotFoundError: No module named 'megatron.core'
+Generated:
+Generated:
+Generated:
+Waiting on Torch PID 63
+Waiting on Torch PID 64
+Pod on gke-apacaiinfra-a3plus-multi-nic-a7c5e69e-lhwh.asia-northeast1-b.c.injae-sandbox-340804.internal is exiting
