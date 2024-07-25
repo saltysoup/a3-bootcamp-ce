@@ -397,7 +397,7 @@ python main.py \
     training=llama/llama2_7b_bootcamp \
     env_vars.TRANSFORMERS_OFFLINE=0 \
     +env_vars.HF_TOKEN=${HF_TOKEN} \
-    container=../nemofw+tcpxo-llama3.1.sqsh \
+    container=../nemofw+tcpxo-24.05.llama3.1.sqsh \
     container_mounts="['/var/lib/tcpxo/lib64',${PWD}/data:/data]" \
     cluster.srun_args=["--container-writable"] \
     training.trainer.max_steps=${MAX_STEPS} \
