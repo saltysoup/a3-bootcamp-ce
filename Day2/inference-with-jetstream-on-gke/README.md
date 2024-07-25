@@ -30,11 +30,11 @@ To set your TPU v5e cluster as the CURRENT context, run the following.
 kubectl config use-context ${CONTEXT_NAME_OF_TPU_CLUSTER}
 ```
 
-### Gemma Access Request
+### Request Gemma Access
 
-Go to [Gemma Model Card](https://www.kaggle.com/models/google/gemma) to request access. (If it's not granted right away, please ask Minjae Kang(@minjkang) or Injae Kwak(@ikwak) for help.)
+Visit [Gemma Model Card](https://www.kaggle.com/models/google/gemma) to request access (If it's not granted right away, please ask Minjae Kang (minjkang@) or Injae Kwak (ikwak@) for help).
 
-### Kaggle Access Token Creation
+### Create Kaggle Access Token
 
 Since we will download the model checkpoint from [Kaggle](https://www.kaggle.com/), we need to prepare a Kaggle access token.
 
@@ -57,7 +57,7 @@ kubectl create secret generic kaggle-secret \
 
 > Even though Kaggle provides checkpoints for MaxText, it is not actually MaxText compatible. Instead, it is [Orbax](https://github.com/google/orbax) compatible.
 
-We will convert the Kaggle-provided checkpoint to a MaxText compatible first, and then convert it once again into unscanned one, which is used for JetStream model serving.
+We will convert the Kaggle-provided checkpoint to a MaxText compatible format first, and then convert it once again into unscanned one, which is used for JetStream model serving.
 
 Follow the below instructions to download and convert the Gemma 7B model checkpoint files.
 
@@ -250,8 +250,6 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
   The output is similar to the following:
 
   ```text
-  kubectl logs deploy/maxengine-server -f -c jetstream-http
-
   INFO:     Started server process [1]
   INFO:     Waiting for application startup.
   INFO:     Application startup complete.
@@ -324,7 +322,7 @@ Total Generated Tokens: 9712
 Average Throughput: 54.00 tokens/sec
 ```
 
-> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$)
+> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$).
 <!-- -->
 > Compare this with L4 & H100 benchmark results. Do they differ significantly?
 
@@ -336,7 +334,7 @@ Now it's time to get your hands dirty. Your goal is to find an optimal setting(i
 
 You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify MaxText+JetStream  configuration arguments. Share your results through the leaderboard.
 
-> Hint: Refer to k8s manifest and notice how we have passed MaxText+JetStream settings
+> Hint: Refer to k8s manifest and notice how we have passed MaxText+JetStream settings!
 <!-- -->
 > Hint: See this [link](https://cloud.google.com/tpu/docs/tutorials/LLM/jetstream#server-flags) to get information about JetStream+MaxText setting arguments.
 

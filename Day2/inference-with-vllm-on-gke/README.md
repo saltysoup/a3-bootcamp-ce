@@ -241,7 +241,7 @@ Repeat the steps we did for L4 cluster again for H100 cluster.
 Make sure your H100 cluster is selected as the current context before proceeding.
 
 ```bash
-kubectl config use-context ${NAME-OF-THE-CONTEXT-FOR-YOUR-H100-CLUSTER}
+kubectl config use-context ${CONTEXT-NAME-OF-YOUR-H100-CLUSTER}
 ```
 
 #### Set HuggingFace Access Token as a k8s Secret
