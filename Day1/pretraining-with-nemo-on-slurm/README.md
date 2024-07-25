@@ -405,14 +405,24 @@ python main.py \
     training.trainer.val_check_interval=${MAX_STEPS}
 ```
 
-4. Run the training script with `bash train_llama2.sh`. This will result in NeMo automatically generating and submitting a slurm job using the user provided parameters in the script, and the NeMo training config
+4. Download the llama2 tokenizer from `launcher_scripts/data` directory
+```
+# From launcher_scripts/data directory
+wget https://storage.googleapis.com/injae-download/tokenizer/llama2_tokenizer.tar && tar xvf llama2_tokenizer.tar
+
+# you should now have tokenizer files
+ls tokenizer/
+merges.txt  special_tokens_map.json  tokenizer_config.json  tokenizer.json  vocab.json
+```
+
+5. Run the training script with `bash train_llama2.sh`. This will result in NeMo automatically generating and submitting a slurm job using the user provided parameters in the script, and the NeMo training config
 
 ```
 # Generate and submit a NeMo training job
 bash train_llama2.sh
 ```
 
-5. Monitor the progress using Slurm command `watch squeue`, where `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `watch docker images`.
+6. Monitor the progress using Slurm command `watch squeue`, where `R` means running. If something has failed, the job will disappear from the queue automatically. Note that first job will take ~10 min to run as the A3 Mega nodes need to download the NCCL and RxDM container for Fastrak to work. You can verify this by SSH'ing into a A3 mega VM and using `watch docker images`.
 
 - Useful Slurm commands
   - `squeue` shows current job queue
@@ -420,7 +430,7 @@ bash train_llama2.sh
   - `scancel <jobID>` cancels a scheduled or running job
   - `sacct -J <jobID>` shows historical info about previous job  
 
-6. Monitor the generated log files in `results/llama2_7b_bootcamp` directory. The file names are `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.out` and `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.err`
+7. Monitor the generated log files in `results/llama2_7b_bootcamp` directory. The file names are `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.out` and `log-nemo-megatron-llama2_7b_bootcamp_<JobID>.err`
 
 Example output
 ```
@@ -439,9 +449,9 @@ Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.5
 ```
 **Note: Connect to one of your A3 Mega VMs via SSH and run the nvitop tool (after activating the `nemo_env` virtual environment we created previously). This will allow you to see the real time GPU utilisation rates, which is useful for debugging or performance tuning eg. Low GPU memory utilisation rate likely means you have room to further increase performance! (or if your job is crashing with CUDA OOM)**
 
-7. Note the `train_step_timing in s=` value, as that shows the training throughput for the job for time it takes per global step (and global batch size).
+8. Note the `train_step_timing in s=` value, as that shows the training throughput for the job for time it takes per global step (and global batch size).
 
-8. **[Make a copy of this google sheets template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973)** to calculate your MFU and tokens/GPU/sec
+9. **[Make a copy of this google sheets template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973)** to calculate your MFU and tokens/GPU/sec
 
 ### What is happening as the job is submitted?
 
