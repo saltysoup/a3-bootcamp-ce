@@ -12,24 +12,25 @@ if __name__ == "__main__":
         "max_tokens": 1024
     }
 
-    num_iter = 50
+    NUM_ITER = 50
+    PRINT_EVERY = 5
     elapsed_times = []
     num_tokens = []
 
-    for idx in range(num_iter):
+    for idx in range(NUM_ITER):
         res = requests.post(url, json=req_body)
         res = json.loads(res.text)
         elapsed_times.append(res["benchmark"]["total_elapsed_time"])
         num_tokens.append(res["benchmark"]["total_tokens_generated"])
 
-        if (idx + 1) % 10 == 0:
-            print(f"Done: {idx + 1} / {num_iter}")
+        if (idx + 1) % PRINT_EVERY == 0:
+            print(f"Done: {idx + 1} / {NUM_ITER}")
 
     tot_num_tokens = sum(num_tokens)
     tot_elapsed_time = sum(elapsed_times)
     avg_tp = tot_num_tokens / tot_elapsed_time
     print("\n===== Result =====")
-    print(f"Iterations: {num_iter}")
+    print(f"Iterations: {NUM_ITER}")
     print(f"Total Elapsed Time for Generation: {tot_elapsed_time:.2f} seconds")
     print(f"Total Generated Tokens: {tot_num_tokens}")
     print(f"Average Throughput: {avg_tp:.2f} tokens/sec")

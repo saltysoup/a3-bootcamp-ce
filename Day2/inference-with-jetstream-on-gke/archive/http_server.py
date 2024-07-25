@@ -63,16 +63,15 @@ async def generate(request: GenerateRequest):
 
         start_time = time.perf_counter()
         future = executor.submit(generate_prompt, request)
-        response = await future.result()
-        print(response)
+        result = await future.result()
 
         time_elapsed = time.perf_counter() - start_time
         response = {
-        "response": response,
+        "prediction": result["output"],
         "benchmark": {
                 "total_elapsed_time": time_elapsed,
-                # "total_tokens_generated": total_tokens_generated,
-                # "throughput": total_tokens_generated / time_elapsed,
+                "total_tokens_generated": result["tot_num_tokens"],
+                "throughput": result["tot_num_tokens"] / time_elapsed,
             }
         }
 
@@ -99,6 +98,10 @@ async def generate_prompt(
         async for r in response:
             tokens.append(r.stream_content.samples[0].text)
             output += str(r.stream_content.samples[0].text)
-        
-        output = tokens
-        return output
+
+        ret = {
+            "output": output,
+            "tot_num_tokens": len(tokens)
+        }
+        return ret
+    
