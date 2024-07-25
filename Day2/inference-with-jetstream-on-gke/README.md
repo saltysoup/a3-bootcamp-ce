@@ -169,10 +169,26 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
             limits:
               google.com/tpu: 8
         - name: jetstream-http
-          image: minjkang/a3-bootcamp-lab4-jetstream-http:latest
-          imagePullPolicy: Always
+          image: minjkang/a3-bootcamp-lab4:latest
           ports:
           - containerPort: 8000
+  ---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: jetstream-svc
+  spec:
+    selector:
+      app: maxengine-server
+    ports:
+    - protocol: TCP
+      name: jetstream-http
+      port: 8000
+      targetPort: 8000
+    - protocol: TCP
+      name: jetstream-grpc
+      port: 9000
+      targetPort: 9000
   ---
   apiVersion: v1
   kind: Service
@@ -271,33 +287,31 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 ### Send Inference Requests
 
-Now we can send inference requests using __inference.py__. You can replace *user_prompt* with your own one for testing.
+Now we can send inference requests using __../inference.py__. You can replace *user_prompt* with your own one for testing.
 
 ```bash
-python inference.py
+python ../inference.py
 ```
 
 The following output shows an example of the model response:
 
-(TODO)
-
 ```json
 {
-    "response": "**Answer:**\n\nPython is an excellent choice for beginners due to its simple syntax, readability, and vast ecosystem...",
+    "prediction": "**Answer:**\n\nPython is an excellent choice for beginners due to its simple syntax, readability...",
     "benchmark": {
-        "total_elapsed_time": 1.7916721450000068,
-        "total_tokens_generated": 238,
-        "throughput": 132.8368031306303
+        "total_elapsed_time": 5.143557029998192,
+        "total_tokens_generated": 279,
+        "throughput": 54.242618167314866
     }
 }
 ```
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
 
 ```bash
-python benchmark.py
+python ../benchmark.py
 ```
 
 The output will be like:
@@ -305,26 +319,26 @@ The output will be like:
 ```text
 ===== Result =====
 Iterations: 50
-Total Elapsed Time for Generation: 92.92 seconds
-Total Generated Tokens: 12287
-Average Throughput: 132.23 tokens/sec
+Total Elapsed Time for Generation: 179.86 seconds
+Total Generated Tokens: 9712
+Average Throughput: 54.00 tokens/sec
 ```
 
 > With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$)
 <!-- -->
-> Compare this with L4 benchmark results. Do they differ significantly?
+> Compare this with L4 & H100 benchmark results. Do they differ significantly?
 
-## Optimize Performance for Gemma on GKE
+## Optimize Performance for Gemma with JetStream and TPUs on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for vLLM+Gemma to achieve maximum Average Per Cost Performance(tokens/$).
+Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and MaxText+JetStream configurations) for Gemma to achieve maximum Average Per Cost Performance(tokens/$).
 
 > Note: Settings provided in this lab is far from the optimal👻.
 
-You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify vLLM configuration arguments. Share your results through the leaderboard.
+You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify MaxText+JetStream  configuration arguments. Share your results through the leaderboard.
 
-> Hint: Refer to k8s manifest and notice how we have passed vLLM settings
+> Hint: Refer to k8s manifest and notice how we have passed MaxText+JetStream settings
 <!-- -->
-> Hint: See this [link](https://docs.vllm.ai/en/latest/models/engine_args.html) to get information about vLLM setting arguments.
+> Hint: See this [link](https://cloud.google.com/tpu/docs/tutorials/LLM/jetstream#server-flags) to get information about JetStream+MaxText setting arguments.
 
 #### Clean up
 

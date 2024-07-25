@@ -188,10 +188,10 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 #### Send Inference Requests
 
-Now we can send inference requests using __inference.py__. You can replace *user_prompt* with your own one for testing.
+Now we can send inference requests using __../inference.py__. You can replace *user_prompt* with your own one for testing.
 
 ```bash
-python inference.py
+python ../inference.py
 ```
 
 The following output shows an example of the model response:
@@ -209,10 +209,10 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
 
 ```bash
-python benchmark.py
+python ../benchmark.py
 ```
 
 The output will be like:
@@ -373,10 +373,10 @@ Forwarding from 127.0.0.1:8000 -> 8000
 
 #### Send Inference Requests
 
-Now we can send inference requests using __inference.py__. You can replace *user_prompt* with your own one for testing.
+Now we can send inference requests using __../inference.py__. You can replace *user_prompt* with your own one for testing.
 
 ```bash
-python inference.py
+python ../inference.py
 ```
 
 The following output shows an example of the model response:
@@ -394,10 +394,10 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
 
 ```bash
-python benchmark.py
+python ../benchmark.py
 ```
 
 The output will be like:
@@ -422,9 +422,9 @@ Let's clean up Gemma on H100 cluster by running the following command.
 kubectl delete -f gemma-vllm-h100.yaml
 ```
 
-## Optimize Performance for Gemma on GKE
+## Optimize Performance for Gemma with vLLM and GPUs on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for vLLM+Gemma to achieve maximum Average Per Cost Performance(tokens/$).
+Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for Gemma to achieve maximum Average Per Cost Performance(tokens/$).
 
 > Note: Settings provided in this lab is far from the optimal👻.
 
