@@ -172,10 +172,10 @@ squeue
 
 6. If successful, you should now see `requirements.txt`, `launcher_scripts` and `auto_configurator` in your current directory
 
-7. Install NeMo Framework required packages in a new python virtual environment
+7. Install NeMo Framework required packages in a new python virtual environment from the login node
 ```
 python3 -m venv nemo_env
-source env/bin/activate
+source nemo_env/bin/activate
 pip install -r requirements.txt # Copied from the NeMo Framework Container earlier
 # This is needed to use 23.11 and python3.11, which is what is present on Debian 12.
 # nvitop is a useful tool to real time monitor GPU utilisation and processes for debugging/optimisation 
