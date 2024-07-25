@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-This lab assumes you already have two GKE clusters up and running with GPU accelerators. (One with L4s attached, the other with H100s attached.) If not, you have to create clusters first.
+This lab assumes you already have two GKE clusters up and running with GPU accelerators (One with L4s attached, the other with H100s attached). If not, you have to create clusters first.
 
 ## (Optional) Create kubectl Context
 
@@ -34,11 +34,11 @@ kubectl config use-context ${CONTEXT_NAME_TO_SWITCH}
 
 Be sure to remember the above command, as we will deploy the same model on two different clusters.
 
-### Gemma Access Request
+### Request Gemma Access
 
-Go to [Gemma Model Card](https://huggingface.co/google/gemma-7b-it) to request access. (If it's not granted right away, please ask Minjae Kang(@minjkang) or Injae Kwak(@ikwak) for help.)
+Go to [Gemma Model Card](https://huggingface.co/google/gemma-7b-it) to request access (If it's not granted right away, please ask Minjae Kang (minjkang@) or Injae Kwak (ikwak@) for help).
 
-### HuggingFace Access Token Creation
+### Create HuggingFace Access Token
 
 Since we will download the model checkpoint from [HuggingFace](https://huggingface.co/), we need to prepare a HuggingFace access token.
 
@@ -52,9 +52,9 @@ export HF_TOKEN=${YOUR_HF_ACCESS_TOKEN}
 
 ## Deploy Gemma with vLLM
 
-Now it's time to deploy Gemma with vLLM to our clusters. We'll use [gemma-7b-it](https://huggingface.co/google/gemma-7b-it)(Instruction Tuned Gemma 1 7B) for reference.
+Now it's time to deploy Gemma with vLLM to our clusters. We'll use [gemma-7b-it](https://huggingface.co/google/gemma-7b-it) (Instruction Tuned Gemma 1 7B) for reference.
 
-### Deploy on the L4 Cluster
+### Deploy on L4 Cluster
 
 We will start with deploying on the cluster with L4s first. Make sure your L4 cluster is selected as the current context before proceeding.
 
@@ -149,7 +149,7 @@ Then, let's deploy it by running the following command.
 kubectl apply -f gemma-vllm-l4.yaml
 ```
 
-A Pod in the cluster will download the model weights from HuggingFace using your access token and start the serving engine.
+A Pod in the cluster will download the model weights from HuggingFace using your access token and start the serving engine. This will take about 10 minutes.
 
 Wait for the Deployment to be available:
 
@@ -209,7 +209,7 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput. This may take a while to complete.
 
 ```bash
 python ../benchmark.py
@@ -235,9 +235,9 @@ Let's clean up Gemma on L4 cluster by running the following command.
 kubectl delete -f gemma-vllm-l4.yaml
 ```
 
-### Deploy on the H100 Cluster
+### Deploy on H100 Cluster
 
-Repeat the steps we did for L4 Cluster again for H100 Cluster.
+Repeat the steps we did for L4 cluster again for H100 cluster.
 Make sure your H100 cluster is selected as the current context before proceeding.
 
 ```bash
@@ -410,7 +410,7 @@ Total Generated Tokens: 12287
 Average Throughput: 132.23 tokens/sec
 ```
 
-> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$)
+> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$).
 <!-- -->
 > Compare this with L4 benchmark results. Do they differ significantly?
 
@@ -424,13 +424,13 @@ kubectl delete -f gemma-vllm-h100.yaml
 
 ## Optimize Performance for Gemma with vLLM and GPUs on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and vLLM configurations) for Gemma to achieve maximum Average Per Cost Performance(tokens/$).
+Now it's time to get your hands dirty. Your goal is to find an optimal setting (including both infrastructure options and vLLM configurations) for Gemma to achieve maximum Average Per Cost Performance(tokens/$).
 
 > Note: Settings provided in this lab is far from the optimal👻.
 
 You can use the existing k8s manifest and benchmarking script for your own experimentation. You can either add or modify vLLM configuration arguments. Share your results through the leaderboard.
 
-> Hint: Refer to k8s manifest and notice how we have passed vLLM settings
+> Hint: Refer to k8s manifest and notice how we have passed vLLM settings!
 <!-- -->
 > Hint: See this [link](https://docs.vllm.ai/en/latest/models/engine_args.html) to get information about vLLM setting arguments.
 
