@@ -21,12 +21,6 @@ zone: asia-northeast1-b
 
 2. [Follow the public deployment guide](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster) with the following changes:
 
-`Note: When cloning the hpc toolkit repo, use the release-candidate batch due to a bug with main`
-
-```
-git checkout release-candidate
-```
-
 3. A reservation has already been created for you (you don't need to create a new one). Use the `a3mega-bootcamp` reservation when updating the [cluster deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-deployment) later
 
 4. Make the following changes in the [base deployment file](https://cloud.google.com/hpc-toolkit/docs/deploy/deploy-a3-mega-cluster#update-filestore-deployment)
