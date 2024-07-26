@@ -11,10 +11,10 @@ trainer:
   enable_checkpointing: false
   use_distributed_sampler: false
   max_epochs: null
-  max_steps: 300000
+  max_steps: null #300000
   max_time: "05:23:30:00"
   log_every_n_steps: 1
-  val_check_interval: 2000
+  val_check_interval: null #2000
   limit_val_batches: 0 #32
   limit_test_batches: 0 #50
   accumulate_grad_batches: 1
