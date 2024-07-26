@@ -1,5 +1,6 @@
-FROM nvcr.io/nvidia/nemo:24.05
-#FROM nvcr.io/nvidia/nemo:24.03.01.framework
+ARG NEMOFW_VERSION=24.05.llama3.1
+FROM nvcr.io/nvidia/nemo:${NEMOFW_VERSION}
+
 WORKDIR /workspace
 
 # GCSfuse components (used to provide shared storage, not intended for high performance)
@@ -19,6 +20,3 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
   && mkdir /gcs
 
 RUN pip install git+https://github.com/NVIDIA/dllogger#egg=dllogger
-
-COPY enable-step-times-2405.patch /opt/NeMo/enable-step-times-2405.patch
-#RUN cd /opt/NeMo/ && git apply enable-step-times-2405.patch 

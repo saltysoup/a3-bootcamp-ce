@@ -1,5 +1,5 @@
 run:
-  name: llama2_7b_fp8_mbs2__bucket2
+  name: llama2_7b_bootcamp_gke
   results_dir:
   time_limit: 0:10:00
   dependency: singleton
@@ -11,12 +11,12 @@ trainer:
   enable_checkpointing: false
   use_distributed_sampler: false
   max_epochs: null
-  max_steps: 500
-  max_time: 05:23:30:00
+  max_steps: 300000
+  max_time: "05:23:30:00"
   log_every_n_steps: 1
-  val_check_interval: 500
-  limit_val_batches: 32
-  limit_test_batches: 50
+  val_check_interval: 2000
+  limit_val_batches: 0 #32
+  limit_test_batches: 0 #50
   accumulate_grad_batches: 1
   gradient_clip_val: 1.0
 exp_manager:
@@ -41,8 +41,8 @@ exp_manager:
   create_tensorboard_logger: false
 model:
   mcore_gpt: true
-  micro_batch_size: 2
-  global_batch_size: 1024
+  micro_batch_size: 1
+  global_batch_size: 2048 
   rampup_batch_size: null
   tensor_model_parallel_size: 1
   pipeline_model_parallel_size: 1
@@ -79,21 +79,13 @@ model:
   attention_type: multihead
   share_embeddings_and_output_weights: false
   tokenizer:
-    library: 'megatron'
+    library: 'megatron' #'huggingface'
     type: 'GPT2BPETokenizer'
+    use_fast: true
     model: null
     delimiter: null  # only used for tabular tokenizer
     vocab_file: gpt2-vocab.json
     merge_file: gpt2-merges.txt
-#   
-#  tokenizer:
-#    library: sentencepiece
-#    type: null
-#    model:
-#    delimiter: null
-#    vocab_file: null
-#    merge_file: null
-#    sentencepiece_legacy: false
   native_amp_init_scale: 4294967296
   native_amp_growth_interval: 1000
   hysteresis: 2
@@ -127,11 +119,13 @@ model:
   fp8_interval: 1
   fp8_amax_history_len: 128
   fp8_amax_compute_algo: max
+  fp8_params: False #True
   use_emha: false
   ub_tp_comm_overlap: false
   tp_comm_atomic_ag: false
   tp_comm_atomic_rs: false
   use_flash_attention: true
+  distributed_adam_bucket_merge_size: 4
   optim:
     name: distributed_fused_adam
     lr: 0.0001
@@ -151,8 +145,7 @@ model:
       min_lr: 1.0e-05
     grad_sync_dtype: bf16
   data:
-    # mock_dataset: true 
-    data_impl: mock #mmap                                                             
+    data_impl: mock # mmap                                                             
     splits_string: "90,8,2"                                                  
     seq_length: 4096
     skip_warmup: true                                                           
@@ -163,8 +156,7 @@ model:
     reset_attention_mask: false  # Reset attention mask after end-of-document token
     eod_mask_loss: false  # Mask loss for the end of document tokens            
     index_mapping_dir: null  # path to save index mapping .npy files, by default will save in the same location as data_prefix
-  distributed_adam_bucket_merge_size: 4
-  fp8_params: false
+    data_prefix: null
 
   nsys_profile:
     enabled: false #true
