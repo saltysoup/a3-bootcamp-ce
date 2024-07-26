@@ -458,7 +458,7 @@ Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.5
 
 1. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
 
-- ikwak@ highscore: 14,170 tokens/sec/GPU with 68.47% MFU with 16 GPUs
+- ikwak@ highscore: 16,082 tokens/sec/GPU with 77.71% MFU with 16 GPUs
 
 [Make a copy of this benchmark template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973) and put in your train_step_timing value to see your throughput (Tokens/sec/GPU) and the corresponding MFU.
 
