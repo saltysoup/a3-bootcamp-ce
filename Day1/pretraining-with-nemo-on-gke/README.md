@@ -1,13 +1,15 @@
-# Instructions for GKE
+# Instructions for pre-training llama2 7b using NeMo on GKE
+
+# Use exactly 2 x A3 mega VMs per CE only, in asia-northeast1-b zone
 
 ## ***Objective***
-### *By following this document, you will be able to bring up an A3 plus GKE cluster with GPUDirect-TCPXO integration.*
+### *By following this lab, you will be able to deploy a A3 GKE Slurm cluster to run a llama2 pre-training job using Nvidia NeMo framework*
 
 ## ***Prerequisites***
 
 ### *This user guide assumes that you are familiar with Kubernetes concepts such as pod, node, deployment, namespaces etc and are familiar with GKE concepts such as nodepools, autoscaling, and auto provisioning.*
 
-## ***Provisioning a cluster***
+## ***Provisioning a GKE cluster***
 
 ### *This section shows how to create a cluster which has two NodePools:*
 - The default NodePool contains 3 nodes with e2-medium machine type.
@@ -16,15 +18,16 @@
 [GKE A3 plus VM User Guide (Public Preview Customers)](https://docs.google.com/document/d/1D5umT4-WDuNnYf3ieQ5SfLdmvGRPBQGLB662udzwz8I/edit?tab=t.0#heading=h.n4ytmbxt737h)
 
 
-## Step 1: Setup Netwrok (Create VPCs, subnets and firewall rules)
+## Step 1: Setup Network (Create VPCs, subnets and firewall rules)
 ### *Set environment variables*
 ```
-export PREFIX="apacaiinfra"
+export PREFIX="<yourLdap>"
 export REGION="asia-northeast1"
+export ZONE="asia-northeast1-b"
 export MTU=8896
 export PROJECT="injae-sandbox-340804"
 ```
-### * Creat Network
+### Create VPC and subnets
 ```
 for N in $(seq 1 8); do
   gcloud compute --project=${PROJECT} \
@@ -49,26 +52,23 @@ done
 ```
 > Note: Subnets are configured with /24 range, which has space for 256 IPs. You should explicitly choose the range that fits your needs. If your cluster will have more than 1K nodes, consider a range with more spaces (e.g /21 for 2048 IPs)
 
-## Step 2: Get the GKE version and Create a Cluster
+## Step 2: Create a GKE Cluster
 
 ```
-export ZONE="asia-northeast1-b"
-gcloud container get-server-config --format="yaml(validMasterVersions)" --zone=${ZONE} --project=${PROJECT}
 export GKE_VERSION=1.28.10-gke.1148001
-export CLUSTER_NAME="apacaiinfra"
-export REGION="asia-northeast1"
+export CLUSTER_NAME="<yourLdap>"
+
 gcloud --project ${PROJECT} beta container clusters create ${CLUSTER_NAME} --enable-dataplane-v2 --enable-ip-alias --region ${REGION} --node-locations ${ZONE} --enable-multi-networking --cluster-version ${GKE_VERSION} --no-enable-autoupgrade
 ```
 
 > Note: `--region` by specifying this flag, the GKE cluster will be a regional cluster. Compared with zonal clusters (`--zone`), regional clusters have more default node quota (5k v.s. 1k), and have [additional advantages](https://cloud.google.com/kubernetes-engine/docs/concepts/regional-clusters).
 
-## Step 3: Create a A3+ Nodepool
+## Step 3: Create a A3 Mega VM Nodepool
 ### *Set the EV*
 ```
 export NODE_POOL_NAME="a3plus-multi-nic"
 export MACHINE_TYPE="a3-megagpu-8g"
 export NODE_COUNT=2
-export PREFIX="apacaiinfra"
 export ACCELERATOR_ARG="type=nvidia-h100-mega-80gb,count=8,gpu-driver-version=latest"
 ```
 ### *Create the GPU Pool*
@@ -107,7 +107,9 @@ Allocatable:
   nvidia.com/gpu:             8
 ```
 
-## Step 6: Running TCPXO with NCCL
+## ***Validating TCPXO networking on VMs through NCCL benchmark***
+
+## Step 1: Running TCPXO with NCCL
 
 This section shows how to install the TCPXO NCCL plugin and run a 2 node allgather NCCL test.
 
@@ -117,7 +119,7 @@ This section shows how to install the TCPXO NCCL plugin and run a 2 node allgath
 
 ![](https://github.com/saltysoup/a3-bootcamp-ce/assets/12909178/3e6f3bf6-6a34-4a04-878d-ac4f971beff0)
 
-### Step 6.1: Install the TCPXO NCCL plugin
+### Step 2: Install the TCPXO NCCL plugin
 The plugin will install a specific NCCL library and the TCPXO binary to the node. After applying the following daemonset manifest, you can find NCCL libraries, e.g. `libnccl.so`, `libnccl-tuner.so` and `libnccl-net.so`  in `/home/kubernetes/bin/nvidia/lib64` from the node’s underlying VM. 
 These files will be by default mounted to `/usr/local/nvidia/lib64` together with NVIDIA related libraries in your main GPU application container.
 ```
@@ -131,14 +133,14 @@ kubectl get pod -n kube-system
 nccl-tcpxo-installer-6c2pv                    1/1     Running   0          2m11s
 nccl-tcpxo-installer-qgg82                    1/1     Running   0          2m11s
 ```
-### Step 6.2: Deploying NCCL test workload
+### Step 3: Deploying NCCL test workload
 The following command deploys two pods with [nccl-test](https://github.com/NVIDIA/nccl-tests).
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/gpudirect-tcpxo/nccl-test.yaml
 ```
 
-### Step 6.3: Configure the TCPXO daemon
+### Step 4: Configure the TCPXO daemon
 
 The manifest you just deployed has two Pods. Each pod has two containers, one is the nccl-test container, and the other one is a **TCPXO daemon**. This is the management service which needs to run alongside the main GPU application container that intends to use TCPXO. 
 
@@ -192,7 +194,7 @@ metadata:
 >    - The TCPXO sidecar needs to be in privileged mode.
 >    - The main application container needs to be in privileged mode.
 
-### Step 6.4: Run NCCL test workload
+### Step 5: Run NCCL test workload
 
 After deploying the NCCL test manifest, you’ll need to run the following commands to trigger a NCCL all gather for 2 nodes. 
 
@@ -204,15 +206,23 @@ Here is the example result for the nccl-test workload:
 
 ![](https://github.com/saltysoup/a3-bootcamp-ce/assets/12909178/ab9075de-6ea1-4b72-9edd-6fa4e3d1613c)
 
-### *Optinal : Topology Awareness Setup*
+> -With above example, this shows an approx ~195-200 GB/s being used for message sizes from 1GB+ on the NCCL test. This shows usage of almost all available 1600 Gbps network bandwidth, using conversion formular (X GB/s * 8) = Y Gbps 
+
+### *Optional : Topology Awareness Setup*
 
 If you are using the compact placement or gSC shared reservation when creating A3+ nodepool, you can set up topology awareness configuration to gain better network performance.
 
+**This is not available for this lab, but is highly recommended to enable for large scale GPU clusters.**
+
 ### Please check README.md on the external github for an example of how to take advantage of the performance boosts of this feature.
 ---
-### *By now you have built a GKE cluster that passed the NCCL testing, let's try some training job on it!*
 
-### Step 7.1: Deploy LLama2-7b training job via using helm:
+## ***Running Llama2 pre-training benchmark***
+
+## Step 1: Deploy Llama2-7b training job via using helm:
+
+This section shows how to configure and run the NeMo scripts using [Helm](https://helm.sh/). When the workload container starts, it will automatically run the NCCL plugin and RxDM sidecar that was previously configured to enable multi-NIC bandwidth on the training job. 
+
 ```
 helm install NAME-OF-YOUR-JOB helm-context/
 ```
