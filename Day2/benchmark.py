@@ -1,7 +1,9 @@
+import asyncio
+import aiohttp
 import json
-import requests
 
-if __name__ == "__main__":
+
+async def send_req(session: aiohttp.ClientSession):
     url = 'http://127.0.0.1:8000/generate'
     user_prompt = "I'm new to coding. If you could only recommend one programming language to start with, what would it be and why?"
 
@@ -12,26 +14,37 @@ if __name__ == "__main__":
         "max_tokens": 1024
     }
 
-    NUM_ITER = 50
-    PRINT_EVERY = 5
-    elapsed_times = []
-    num_tokens = []
+    async with session.post(url, json=req_body) as response:
+        return await response.text()
+             
+async def main(n_reqs: int):
+    async with aiohttp.ClientSession() as session:
+        resp_list = await asyncio.gather(
+            *[send_req(session) for _ in range(n_reqs)]
+        )
 
-    for idx in range(NUM_ITER):
-        res = requests.post(url, json=req_body)
-        res = json.loads(res.text)
-        elapsed_times.append(res["benchmark"]["total_elapsed_time"])
-        num_tokens.append(res["benchmark"]["total_tokens_generated"])
+    return resp_list
 
-        if (idx + 1) % PRINT_EVERY == 0:
-            print(f"Done: {idx + 1} / {NUM_ITER}")
 
-    tot_num_tokens = sum(num_tokens)
-    tot_elapsed_time = sum(elapsed_times)
+if __name__ == "__main__":
+    REQ_CNT = 30
+
+    resp_list = asyncio.run(main(REQ_CNT))
+
+    num_tokens_list = []
+    elapsed_time_list = []
+
+    for resp in resp_list:
+        resp = json.loads(resp)
+        elapsed_time_list.append(resp["benchmark"]["total_elapsed_time"])
+        num_tokens_list.append(resp["benchmark"]["total_tokens_generated"])
+
+    tot_elapsed_time = sum(elapsed_time_list)
+    tot_num_tokens = sum(num_tokens_list)
     avg_tp = tot_num_tokens / tot_elapsed_time
+
     print("\n===== Result =====")
-    print(f"Iterations: {NUM_ITER}")
+    print(f"Request Counts: {REQ_CNT}")
     print(f"Total Elapsed Time for Generation: {tot_elapsed_time:.2f} seconds")
     print(f"Total Generated Tokens: {tot_num_tokens}")
     print(f"Average Throughput: {avg_tp:.2f} tokens/sec")
-
