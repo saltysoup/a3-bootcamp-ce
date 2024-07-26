@@ -34,6 +34,10 @@ workload:
     value: "[1.0,/ssd/dataset/]"
   - name: "model.data.index_mapping_dir"
     value: "/ssd/dataset/"
+  - name: "trainer.max_steps"
+    value: "10"
+  - name: "trainer.val_check_interval"
+    value: "10"
 # - name: "model.tokenizer.type"
 #   value: "/ssd/tokenizer" 
 # If not 'null', launches a Tensorboard server on first node. By design, the job will then not exit on first node.
