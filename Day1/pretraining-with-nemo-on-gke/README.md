@@ -252,35 +252,183 @@ nemo-on-k8s/
 - In `docker/Dockerfile`, we're using the publicly available nemo container `nvcr.io/nvidia/nemo:24.05.llama3.1` and installing gcloud sdk to use gcsfuse in the container   
 
 - In `helm-context`, there are 3 x significant yaml files worth noting:
-  - In `nemo-configurations`, you can find example training configurations for NeMo. In this lab, we will be using `llama2-7b.yaml`
+  - In `nemo-configurations`, you can find example NeMo training configurations for popular OSS models. In this lab, we will be using `llama2-7b.yaml`
   - To allow easier switching between training configs, `selected-configuration.yaml` is used as symlink eg. `ln -sf nemo-configurations/llama2-7b.yaml selected-configuration.yaml`. This file is parsed when the training job is deployed. 
-  - In `values.yaml`, 
-  - In `templates/nemo-example.yaml`, you can find how the final kubernetes manifest for the job is created using the values from above yaml files 
+  - In `values.yaml`, you can find custom configurations that will be used in helm templates such as workload/NCCL Plugin/RxDM container images, and NeMo training configs. 
+  - In `templates/nemo-example.yaml`, you can find how the final kubernetes manifest for the job is created using the values from above yaml files through helm template. 
 
+## Step 2: Deploy your training job to GKE
 
-
+From the `nemo-on-k8s` directory, submit a new job using Helm. Here is a [Link to installing Helm if you don't have it](https://helm.sh/docs/intro/install/).
 
 ```
-helm install NAME-OF-YOUR-JOB helm-context/
+helm install <jobName> helm-context/
 ```
-You should see some output like this:
+
+If successful, you should see an output similar to below
+
 ```
-NAME: felix
-LAST DEPLOYED: Mon Jul 22 01:14:14 2024
+walk.go:74: found symbolic link in path: /usr/local/google/home/ikwak/Downloads/a3-bootcamp-ce/Day1/pretraining-with-nemo-on-gke/nemo-on-k8s/helm-context/selected-configuration.yaml resolves to /usr/local/google/home/ikwak/Downloads/a3-bootcamp-ce/Day1/pretraining-with-nemo-on-gke/nemo-on-k8s/helm-context/nemo-configurations/llama2-7b.yaml. Contents of linked file included and used
+NAME: llama2-train
+LAST DEPLOYED: Fri Jul 26 12:05:53 2024
 NAMESPACE: default
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 ```
-### Step 7.2: Check your training job
+
+### Step 3: Monitoring your training job
+
+Verify that your pods are running (you should have 2 pods in total - 1 for each VM).
+
+```
+kubectl get pods
+NAME                   READY   STATUS      RESTARTS   AGE
+llama2-train-0-cks86   2/2     Running     0          100s
+llama2-train-1-cwfhq   2/2     Running     0          100s
 ```
 
+Get the name of the first pod and stream the logs into your local terminal eg. `llama2-train-0-cks86`.
 
+If successful, you should see NCCL creating a distributed group across the 16 GPU ranks across 2 nodes, and NeMo creating and loading an index of the dataset for the training task.
 
+**For the first run, it will take approx 7-8 min to build the index into the local SSD. Note that the index will be created again if the sequence length, global batch size or max steps are changed**
 
+```
+kubectl logs -f llama2-train-0-cks86
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/16
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+[W init.cpp:767] Warning: nvfuser is no longer supported in torch script, use _jit_set_nvfuser_enabled is deprecated and a no-op (function operator())
+Initializing distributed: GLOBAL_RANK: 3, MEMBER: 4/16
+Initializing distributed: GLOBAL_RANK: 7, MEMBER: 8/16
+Initializing distributed: GLOBAL_RANK: 5, MEMBER: 6/16
+Initializing distributed: GLOBAL_RANK: 2, MEMBER: 3/16
+Initializing distributed: GLOBAL_RANK: 6, MEMBER: 7/16
+Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/16
+Initializing distributed: GLOBAL_RANK: 4, MEMBER: 5/16
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 16 processes
+----------------------------------------------------------------------------------------------------
+..
+..
+INFO(NCCL PLUGIN): It's a3-megagpu machine.
+INFO(NCCL PLUGIN): Loading plugin: libnccl-tcpxo.so
+NCCL version 2.21.5+cuda12.2
+INFO(NCCL PLUGIN): It's a3-megagpu machine.
+INFO(NCCL PLUGIN): Loading plugin: libnccl-tcpxo.so
+NCCL version 2.21.5+cuda12.2
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1656] Pipeline model parallel rank: 0, Tensor model parallel rank: 0, Number of model parameters on device: 6.89e+09. Number of precise model parameters on device: 6888361984.
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1501] Building GPT datasets.
+[NeMo I 2024-07-26 12:07:36 utils:220] Let mock = True, as both blend and blend_per_split are None
+[NeMo I 2024-07-26 12:07:36 utils:220] Let split = 1,1,1, an arbitrarily even split, as mock is True
+[NeMo I 2024-07-26 12:07:36 utils:220] Let split_matrix = [(0, 0.3333333333333333), (0.3333333333333333, 0.6666666666666666), (0.6666666666666666, 1.0)]
+[NeMo I 2024-07-26 12:07:36 utils:220] Building dataset splits with cls=MockGPTDataset, sizes=[20480, 0, 0], and config=GPTDatasetConfig(random_seed=1234, sequence_length=4096, blend=None, blend_per_split=None, split='1,1,1', split_matrix=[(0, 0.3333333333333333), (0.3333333333333333, 0.6666666666666666), (0.6666666666666666, 1.0)], num_dataset_builder_threads=1, path_to_cache='/ssd/dataset/', mmap_bin_files=True, mock=True, tokenizer=<nemo.collections.common.tokenizers.huggingface.auto_tokenizer.AutoTokenizer object at 0x790c44703940>, reset_position_ids=False, reset_attention_mask=False, eod_mask_loss=False, create_attention_mask=False, drop_last_partial_validation_sequence=True, add_extra_token_to_sequence=True, s3_cache_path=None)
+[NeMo I 2024-07-26 12:07:36 utils:220] Load the MockGPTDataset train indices
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the document index from f2bb3871fd653f5bf6629fc808d8980d-MockGPTDataset-train-document_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the sample index from f2bb3871fd653f5bf6629fc808d8980d-MockGPTDataset-train-sample_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the shuffle index from f2bb3871fd653f5bf6629fc808d8980d-MockGPTDataset-train-shuffle_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220] > total number of samples: 33296
+[NeMo I 2024-07-26 12:07:36 utils:220] Load the MockGPTDataset valid indices
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the document index from 74c88da4612f19c8c836b24f482794e0-MockGPTDataset-valid-document_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the sample index from 74c88da4612f19c8c836b24f482794e0-MockGPTDataset-valid-sample_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the shuffle index from 74c88da4612f19c8c836b24f482794e0-MockGPTDataset-valid-shuffle_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220] > total number of samples: 16640
+[NeMo I 2024-07-26 12:07:36 utils:220] Load the MockGPTDataset test indices
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the document index from 10cf7ea73f20b67afa36985de35050bd-MockGPTDataset-test-document_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the sample index from 10cf7ea73f20b67afa36985de35050bd-MockGPTDataset-test-sample_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220]  Load the shuffle index from 10cf7ea73f20b67afa36985de35050bd-MockGPTDataset-test-shuffle_index.npy
+[NeMo I 2024-07-26 12:07:36 utils:220] > total number of samples: 16671
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1589] Length of train dataset: 33296
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1591] Length of val dataset: 16640
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1593] Length of test dataset: 16671
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1594] Finished building GPT datasets.
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1702] Setting up train dataloader with len(len(self._train_ds)): 33296 and consumed samples: 0
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1603] Building dataloader with consumed samples: 0
+[NeMo I 2024-07-26 12:07:36 data_samplers:76] Instantiating MegatronPretrainingSampler with total_samples: 33296 and consumed_samples: 0
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1710] Setting up validation dataloader with len(len(self._validation_ds)): 16640 and consumed samples: 0
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1603] Building dataloader with consumed samples: 0
+[NeMo I 2024-07-26 12:07:36 data_samplers:76] Instantiating MegatronPretrainingSampler with total_samples: 16640 and consumed_samples: 0
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1731] Setting up test dataloader with len(len(self._test_ds)): 16671 and consumed samples: 0
+[NeMo I 2024-07-26 12:07:36 megatron_gpt_model:1603] Building dataloader with consumed samples: 0
+[NeMo I 2024-07-26 12:07:36 data_samplers:76] Instantiating MegatronPretrainingSampler with total_samples: 16671 and consumed_samples: 0
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 4 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 3 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 5 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 6 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+LOCAL_RANK: 7 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+[NeMo I 2024-07-26 12:07:36 modelPT:786] Optimizer config = MegatronDistributedFusedAdam (
+    Parameter Group 0
+        betas: [0.9, 0.95]
+        bias_correction: True
+        eps: 1e-08
+        is_expert: False
+        lr: 0.0001
+        weight_decay: 0.1
+    )
+[NeMo I 2024-07-26 12:07:36 lr_scheduler:948] Scheduler "<nemo.core.optim.lr_scheduler.CosineAnnealing object at 0x790c376946d0>" 
+    will be used during training (effective maximum steps = 10) - 
+    Parameters : 
+    (warmup_steps: 500
+    constant_steps: 0
+    min_lr: 1.0e-05
+    max_steps: 10
+    )
 
+  | Name  | Type          | Params | Mode 
+------------------------------------------------
+0 | model | Float16Module | 6.9 B  | train
+------------------------------------------------
+6.9 B     Trainable params
+0         Non-trainable params
+6.9 B     Total params
+27,553.448Total estimated model params size (MB)
+[NeMo W 2024-07-26 12:07:37 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/loops/utilities.py:149: Found `dataloader_iter` argument in the `training_step`. Note that the support for this signature is experimental and the behavior is subject to change.
+```
 
+After ~10 min, your training and the kubernetes job should automatically end after reaching the max_step value of 10.
 
+### Note the value for your job's "train_step_timing in"
+This is the key information for determining training throughput. This indicates it took 46.00 seconds (below) for every step in the training pass. This can be used to measure and compare performance across clusters and models.
 
+```
+  | Name  | Type          | Params | Mode 
+------------------------------------------------
+0 | model | Float16Module | 6.9 B  | train
+------------------------------------------------
+6.9 B     Trainable params
+0         Non-trainable params
+6.9 B     Total params
+27,553.448Total estimated model params size (MB)
+[NeMo W 2024-07-26 12:07:37 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/loops/utilities.py:149: Found `dataloader_iter` argument in the `training_step`. Note that the support for this signature is experimental and the behavior is subject to change.
+    
+`Trainer.fit` stopped: `max_steps=10` reached.
+Epoch 0: : 100%|██████████| 10/10 [07:57<00:00, reduced_train_loss=9.790, global_step=9.000, consumed_samples=20480.0, train_step_timing in s=46.00]
+Waiting on Torch PID 673
+Waiting on Torch PID 674
+Waiting on Torch PID 675
+Waiting on Torch PID 676
+Waiting on Torch PID 677
+Waiting on Torch PID 678
+Waiting on Torch PID 679
+Pod on gke-apacaiinfra-a3plus-multi-nic-a7c5e69e-lhwh.asia-northeast1-b.c.injae-sandbox-340804.internal is exiting at Fri Jul 26 12:16:35 UTC 2024 
+```
+---
 
+## ***Performance Tune and set a High Score!***
 
+Modify your NeMo training config in `values.yaml` or directly on the linked file `selected-configuration.yaml` to performance tune your job and increase the training throughput result.
+
+[Make a copy of this benchmark template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973) and put in your `train_step_timing` value to see your throughput (Tokens/sec/GPU) and the corresponding MFU.
+
+- ikwak@ highscore: 14,170 tokens/sec/GPU with 68.47% MFU with 16 GPUs
+
+`Protip: To identify how much headroom is available on your GPU for further optimisation, observe the real time GPU utilisation rate on your GPU nodes from the Job dashboard within the GKE console page. If you still have unused GPU memory, you can tune further eg. Increase micro_batch_size, bucket sizes, down quant precision type..` 
