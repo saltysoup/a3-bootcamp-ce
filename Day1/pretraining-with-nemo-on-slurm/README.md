@@ -1,9 +1,9 @@
-# Instructions for Slurm
+# Instructions for pre-training llama2 7b using NeMo on Slurm
 
 # Use exactly 2 x A3 mega VMs per CE only, in asia-northeast1-b zone
 
 ## ***Objective***
-### *By following this document, you will be able to deploy a A3 plus Slurm cluster to run a llama2 pre-training job using Nvidia NeMo framework*
+### *By following this lab, you will be able to deploy a A3 plus Slurm cluster to run a llama2 pre-training job using Nvidia NeMo framework*
 
 ## ***Provisioning a cluster***
 
@@ -459,6 +459,8 @@ Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.5
 1. Modify your NeMo configurations and training parameters in `launcher_scripts/conf/training/llama/llama2_7b.yaml` to performance tune your job and increase the training throughput result.
 
 - ikwak@ highscore: 14,170 tokens/sec/GPU with 68.47% MFU with 16 GPUs
+
+[Make a copy of this benchmark template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973) and put in your train_step_timing value to see your throughput (Tokens/sec/GPU) and the corresponding MFU.
 
 `Protip 1: Watch out! you may get CUDA OOM errors as you start modifying your training parameters. A hint is to start by lowering your micro_batch_size.`
 
