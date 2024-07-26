@@ -322,13 +322,13 @@ Total Generated Tokens: 9712
 Average Throughput: 54.00 tokens/sec
 ```
 
-> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$).
+> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$) and Cost for 1M Tokens Generation($/1M tokens).
 <!-- -->
 > Compare this with L4 & H100 benchmark results. Do they differ significantly?
 
 ## Optimize Performance for Gemma with JetStream and TPUs on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and MaxText+JetStream configurations) for Gemma to achieve maximum Average Per Cost Performance(tokens/$).
+Now it's time to get your hands dirty. Your goal is to find an optimal setting(including both infrastructure options and MaxText+JetStream configurations) for Gemma to achieve minimum Cost for 1M Tokens Generation($/1M tokens).
 
 > Note: Settings provided in this lab is far from the optimal👻.
 
