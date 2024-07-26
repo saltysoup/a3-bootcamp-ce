@@ -93,7 +93,6 @@ spec:
       containers:
       - name: inference-server
         image: minjkang/a3-bootcamp-lab3:latest
-        imagePullPolicy: Always
         resources:
           requests:
             cpu: "2"
@@ -109,6 +108,7 @@ spec:
         args:
         - --model=$(MODEL_ID)
         - --tensor-parallel-size=2
+        - --gpu-memory-utilization=0.7
         env:
         - name: MODEL_ID
           value: google/gemma-7b-it
@@ -209,7 +209,7 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput. This may take a while to complete.
+Let's run a benchmark test using __../benchmark.py__. It will send multiple inference requests concurrently and then calculate the average latency and throughput. This may take a while to complete.
 
 ```bash
 python ../benchmark.py
@@ -219,10 +219,10 @@ The output will be like:
 
 ```text
 ===== Result =====
-Iterations: 50
-Total Elapsed Time for Generation: 540.43 seconds
-Total Generated Tokens: 13678
-Average Throughput: 25.31 tokens/sec
+Request Counts: 30
+Total Elapsed Time for Generation: 316.79 seconds
+Total Generated Tokens: 6193
+Average Throughput: 19.55 tokens/sec
 ```
 
 > With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$).
@@ -278,7 +278,6 @@ spec:
       containers:
       - name: inference-server
         image: minjkang/a3-bootcamp-lab3:latest
-        imagePullPolicy: Always
         resources:
           requests:
             cpu: "2"
@@ -294,6 +293,7 @@ spec:
         args:
         - --model=$(MODEL_ID)
         - --tensor-parallel-size=2
+        - --gpu-memory-utilization=0.7
         env:
         - name: MODEL_ID
           value: google/gemma-7b-it
@@ -394,7 +394,7 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __../benchmark.py__. It will send multiple inference requests concurrently and then calculate the average latency and throughput.
 
 ```bash
 python ../benchmark.py
@@ -404,10 +404,10 @@ The output will be like:
 
 ```text
 ===== Result =====
-Iterations: 50
-Total Elapsed Time for Generation: 92.92 seconds
-Total Generated Tokens: 12287
-Average Throughput: 132.23 tokens/sec
+Request Counts: 30
+Total Elapsed Time for Generation: 65.24 seconds
+Total Generated Tokens: 6679
+Average Throughput: 102.38 tokens/sec
 ```
 
 > With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$) and Cost for 1M Tokens Generation($/1M tokens).
