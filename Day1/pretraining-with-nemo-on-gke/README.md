@@ -223,6 +223,43 @@ If you are using the compact placement or gSC shared reservation when creating A
 
 This section shows how to configure and run the NeMo scripts using [Helm](https://helm.sh/). When the workload container starts, it will automatically run the NCCL plugin and RxDM sidecar that was previously configured to enable multi-NIC bandwidth on the training job. 
 
+Take a look at the directory layout
+
+```
+ikwak@penguin:~/a3-bootcamp-ce/Day1/pretraining-with-nemo-on-gke$ tree nemo-on-k8s/
+nemo-on-k8s/
+├── docker
+│   └── Dockerfile
+└── helm-context
+    ├── Chart.yaml
+    ├── nemo-configurations
+    │   ├── gpt-175b-fp8.yaml
+    │   ├── gpt-175b.yaml
+    │   ├── gpt-5b.yaml
+    │   ├── llama2-7b-fp8.yaml
+    │   ├── llama2-7b.yaml
+    │   ├── llama3-70b.yaml
+    │   ├── mixtral-8x7b-nvidia-configs.yaml
+    │   └── mixtral8x7b.yaml
+    ├── selected-configuration.yaml -> nemo-configurations/llama2-7b.yaml
+    ├── templates
+    │   └── nemo-example.yaml
+    └── values.yaml
+
+5 directories, 13 files
+```
+
+- In `docker/Dockerfile`, we're using the publicly available nemo container `nvcr.io/nvidia/nemo:24.05.llama3.1` and installing gcloud sdk to use gcsfuse in the container   
+
+- In `helm-context`, there are 3 x significant yaml files worth noting:
+  - In `nemo-configurations`, you can find example training configurations for NeMo. In this lab, we will be using `llama2-7b.yaml`
+  - To allow easier switching between training configs, `selected-configuration.yaml` is used as symlink eg. `ln -sf nemo-configurations/llama2-7b.yaml selected-configuration.yaml`. This file is parsed when the training job is deployed. 
+  - In `values.yaml`, 
+  - In `templates/nemo-example.yaml`, you can find how the final kubernetes manifest for the job is created using the values from above yaml files 
+
+
+
+
 ```
 helm install NAME-OF-YOUR-JOB helm-context/
 ```
