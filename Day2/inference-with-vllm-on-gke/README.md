@@ -432,5 +432,5 @@ You can use the existing k8s manifest and benchmarking script for your own exper
 
 > Hint: Refer to k8s manifest and notice how we have passed vLLM settings!
 <!-- -->
-> Hint: See this [link](https://docs.vllm.ai/en/latest/models/engine_args.html) to get information about vLLM setting arguments.
+> Hint: See this [Engine Arguments](https://docs.vllm.ai/en/latest/models/engine_args.html) and [Performance & Tuning](https://docs.vllm.ai/en/latest/models/performance.html) to get information about vLLM setting arguments.
 
