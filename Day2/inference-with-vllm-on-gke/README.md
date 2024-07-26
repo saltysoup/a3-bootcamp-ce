@@ -410,7 +410,7 @@ Total Generated Tokens: 12287
 Average Throughput: 132.23 tokens/sec
 ```
 
-> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$) and Cost for 1k Tokens Generation($/1k tokens).
+> With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$) and Cost for 1M Tokens Generation($/1M tokens).
 <!-- -->
 > Compare this with L4 benchmark results. Do they differ significantly?
 
@@ -424,7 +424,7 @@ kubectl delete -f gemma-vllm-h100.yaml
 
 ## Optimize Performance for Gemma with vLLM and GPUs on GKE
 
-Now it's time to get your hands dirty. Your goal is to find an optimal setting (including both infrastructure options and vLLM configurations) for Gemma to achieve minimum Cost for 1k Tokens Generation($/1k tokens).
+Now it's time to get your hands dirty. Your goal is to find an optimal setting (including both infrastructure options and vLLM configurations) for Gemma to achieve minimum Cost for 1kMTokens Generation($/1M tokens).
 
 > Note: Settings provided in this lab is far from the optimal👻.
 
