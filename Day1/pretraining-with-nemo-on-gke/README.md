@@ -432,3 +432,8 @@ Modify your NeMo training config in `values.yaml` or directly on the linked file
 - ikwak@ highscore: 16,082 tokens/sec/GPU with 77.71% MFU with 16 GPUs
 
 `Protip: To identify how much headroom is available on your GPU for further optimisation, observe the real time GPU utilisation rate on your GPU nodes from the Job dashboard within the GKE console page. If you still have unused GPU memory, you can tune further eg. Increase micro_batch_size, bucket sizes, down quant precision type..` 
+
+---
+# **Cleaning up resources**
+
+Please please delete your VPCs and GKE clusters once the labs are finished

@@ -465,3 +465,22 @@ Epoch 0: :  47%|████▋     | 7/15 [06:19<07:13, reduced_train_loss=11.5
 `Protip 1: Watch out! you may get CUDA OOM errors as you start modifying your training parameters. A hint is to start by lowering your micro_batch_size.`
 
 `Protip 2: To identify how much headroom is available on your GPU for optimisation, SSH into one of your A3 mega VM and monitor metrics in real time such as GPU utilisation using nvitop. If you still have unused GPU memory, you can tune further eg. Increase micro_batch_size, bucket sizes, down quant precision type..`
+
+---
+# **Cleaning up resources**
+
+Please please delete your resources once the labs are finished.
+
+To delete your resources, navigate back to the [A3 mega directory in your local machine](https://cloud.google.com/cluster-toolkit/docs/deploy/deploy-a3-mega-cluster#switch_to_the_a3_mega_directory) (where you deployed from), and use the Cloud HPC toolkit to automatically delete all resources using terraform.
+
+```
+# Navigate to your directory with the generated terraform files
+cd hpc-toolkit/examples/machine-learning/a3-megagpu-8g
+
+# Delete the slurm cluster and GPU nodes first
+./ghpc destroy yourUsername-cluster --auto-approve
+
+# Delete the VPCs and Filestore
+./ghpc destroy yourUsername-base --auto-approve
+
+```
