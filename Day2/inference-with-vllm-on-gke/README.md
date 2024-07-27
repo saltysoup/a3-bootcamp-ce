@@ -2,6 +2,10 @@
 
 > In this lab, you will learn how to deploy open LLMs (Gemma specifically) for serving with GPUs on GKE.
 
+**Use the existing GKE clusters below**
+- For `Inference with vLLM on GKE`, use cluster `l4andvllm` in region `asia-southeast1` and cluster `h100onvllm` in region `us-east5`
+- For `Inference with JetStream and TPUs on GKE`, use cluster `tpu-cluster-netherlands` in region `europe-west4`
+
 ## Prerequisites
 
 This lab assumes you already have two GKE clusters up and running with GPU accelerators (One with L4s attached, the other with H100s attached). If not, you have to create clusters first.
@@ -15,9 +19,6 @@ To connect to existing GKE clusters, you have to create ~/.kube/config contexts 
 ```bash
 gcloud container clusters get-credentials ${CLUSTER_NAME} --location=${REGION}
 ```
-
-- For `Inference with vLLM on GKE`, use cluster `l4andvllm` in region `asia-southeast1` and cluster `h100onvllm` in region `us-east5`
-- For `Inference with JetStream and TPUs on GKE`, use cluster `tpu-cluster-netherlands` in region `europe-west4`
 
 
 You have to run the above command for both GKE clusters, you will see two cluster when running below. It will show you which one is selected as the CURRENT context.
