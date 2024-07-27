@@ -401,6 +401,14 @@ The following output shows an example of the model response:
 
 Let's run a benchmark test using __../benchmark.py__. It will send multiple inference requests concurrently and then calculate the average latency and throughput.
 
+Set up a venv and install the required python modules
+```bash
+python3 -m venv vllm
+source vllm/bin/activate
+
+pip install aiohttp asyncio
+```
+
 ```bash
 python ../benchmark.py
 ```
