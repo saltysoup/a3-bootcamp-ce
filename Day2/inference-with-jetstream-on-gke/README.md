@@ -192,23 +192,6 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
       name: jetstream-grpc
       port: 9000
       targetPort: 9000
-  ---
-  apiVersion: v1
-  kind: Service
-  metadata:
-    name: jetstream-svc
-  spec:
-    selector:
-      app: maxengine-server
-    ports:
-    - protocol: TCP
-      name: jetstream-http
-      port: 8000
-      targetPort: 8000
-    - protocol: TCP
-      name: jetstream-grpc
-      port: 9000
-      targetPort: 9000
   ```
 
   The manifest sets the following key properties:
@@ -265,11 +248,14 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
   kubectl logs deploy/maxengine-server -f -c maxengine-server
   ```
 
-  The output is similar to the following:
+  When everything is up and running, the output will be similar to the following:
 
   ```text
-  2024-03-29 17:09:08,047 - jax._src.dispatch - DEBUG - Finished XLA compilation of jit(initialize) in 0.26236414909362793 sec
-  2024-03-29 17:09:08,150 - root - INFO - ---------Generate params 0 loaded.---------
+  DEBUG:jax._src.dispatch:Finished XLA compilation of jit(initialize) in 0.18877363204956055 sec
+  2024-07-27 07:09:57,978 - jax._src.compiler - DEBUG - Not writing persistent cache entry for 'jit_initialize' because it took < 1.00 seconds to compile (0.19s)
+  2024-07-27 07:09:57,978 - jax._src.dispatch - DEBUG - Finished XLA compilation of jit(initialize) in 0.18877363204956055 sec
+  2024-07-27 07:09:58,039 - root - INFO - ---------Generate params 0 loaded.---------
+  INFO:root:---------Generate params 0 loaded.---------
   ```
 
 #### Set Up k8s Port Forwarding for Testing
@@ -309,7 +295,7 @@ The following output shows an example of the model response:
 
 #### Run Benchmark Test
 
-Let's run a benchmark test using __../benchmark.py__. It will send same inference request multiple times and then calculate the average latency and throughput.
+Let's run a benchmark test using __../benchmark.py__. It will send multiple inference requests concurrently and then calculate the average latency and throughput.
 
 ```bash
 python ../benchmark.py
@@ -319,10 +305,10 @@ The output will be like:
 
 ```text
 ===== Result =====
-Iterations: 50
-Total Elapsed Time for Generation: 179.86 seconds
-Total Generated Tokens: 9712
-Average Throughput: 54.00 tokens/sec
+Request Counts: 30
+Total Elapsed Time for Generation: 1294.31 seconds
+Total Generated Tokens: 4490
+Average Throughput: 3.47 tokens/sec
 ```
 
 > With that, convert Average Throughput(tokens/sec) into Average Per Cost Performance(tokens/$) and Cost for 1M Tokens Generation($/1M tokens).
@@ -339,7 +325,7 @@ You can use the existing k8s manifest and benchmarking script for your own exper
 
 > Hint: Refer to k8s manifest and notice how we have passed MaxText+JetStream settings!
 <!-- -->
-> Hint: See this [link](https://cloud.google.com/tpu/docs/tutorials/LLM/jetstream#server-flags) to get information about JetStream+MaxText setting arguments.
+> Hint: See this [link](https://github.com/google/JetStream/blob/main/docs/online-inference-with-maxtext-engine.md#jetstream-maxtext-server-flag-descriptions) to get information about JetStream+MaxText setting arguments.
 
 #### Clean up
 
