@@ -429,6 +429,6 @@ Modify your NeMo training config in `values.yaml` or directly on the linked file
 
 [Make a copy of this benchmark template](https://docs.google.com/spreadsheets/d/1VDaQ9reMmWr9FHowzOy_0_Iwxkg1Bwo5vIPeb1yqXqA/edit?resourcekey=0-G0uKUN05DynsJBKkRCJUAg&gid=1344899973#gid=1344899973) and put in your `train_step_timing` value to see your throughput (Tokens/sec/GPU) and the corresponding MFU.
 
-- ikwak@ highscore: 14,170 tokens/sec/GPU with 68.47% MFU with 16 GPUs
+- ikwak@ highscore: 16,082 tokens/sec/GPU with 77.71% MFU with 16 GPUs
 
 `Protip: To identify how much headroom is available on your GPU for further optimisation, observe the real time GPU utilisation rate on your GPU nodes from the Job dashboard within the GKE console page. If you still have unused GPU memory, you can tune further eg. Increase micro_batch_size, bucket sizes, down quant precision type..` 
