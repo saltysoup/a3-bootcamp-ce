@@ -254,13 +254,21 @@ kubectl config use-context ${CONTEXT-NAME-OF-YOUR-H100-CLUSTER}
 Run the following command to ingest your HuggingFace Access Token to the cluster.
 
 ```bash
-kubectl create secret generic hf-secret \
+# Create a unique name for hf-secret eg. yourLdap-secret 
+kubectl create secret generic yourLdap-secret \
 --from-literal=hf_api_token=$HF_TOKEN \
 --dry-run=client -o yaml | kubectl apply -f -
 ```
 
 #### Create k8s Manifest
 Let's create a k8s manifest named __gemma-vllm-h100.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
+
+**Update the name of your secret to the value you set in above step eg. yourLdap-secret**
+```
+secretKeyRef:
+  name: yourLdap-secret
+  key: hf_api_token
+```
 
 ```yaml
 apiVersion: apps/v1
@@ -305,7 +313,7 @@ spec:
         - name: HUGGING_FACE_HUB_TOKEN
           valueFrom:
             secretKeyRef:
-              name: hf-secret
+              name: yourLdap-secret
               key: hf_api_token
         volumeMounts:
         - mountPath: /dev/shm
