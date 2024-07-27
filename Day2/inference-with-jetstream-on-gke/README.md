@@ -17,6 +17,8 @@ To connect to existing GKE clusters, you have to create ~/.kube/config contexts 
 ```bash
 gcloud container clusters get-credentials ${CLUSTER_NAME} --location=${REGION}
 ```
+- For `Inference with vLLM on GKE`, use cluster `l4andvllm` in region `asia-southeast1` and cluster `h100onvllm` in region `us-east5`
+- For `Inference with JetStream and TPUs on GKE`, use cluster `tpu-cluster-netherlands` in region `europe-west4`
 
 If you have to run the above command successfully, you will the context for your TPU v5e cluster from the output of the following command:
 
