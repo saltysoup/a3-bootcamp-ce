@@ -437,3 +437,35 @@ Modify your NeMo training config in `values.yaml` or directly on the linked file
 # **Cleaning up resources**
 
 Please please delete your VPCs and GKE clusters once the labs are finished
+
+### Delete GKE Cluster:
+```
+export PREFIX="<yourLdap>"
+export REGION="asia-northeast1"
+export ZONE="asia-northeast1-b"
+export PROJECT="injae-sandbox-340804"
+export CLUSTER_NAME="<yourLdap>"
+```
+```
+gcloud --project ${PROJECT} beta container clusters delete ${CLUSTER_NAME} --region ${REGION} --node-locations ${ZONE} 
+```
+
+
+### clean your network:
+```
+for N in $(seq 1 8); do
+  gcloud compute --project=${PROJECT} \
+    firewall-rules delete \
+    ${PREFIX?}-internal-$N \
+    --quiet
+  gcloud compute --project=${PROJECT} \
+    networks subnets delete \
+    ${PREFIX?}-sub-$N \
+    --region=${REGION?} \
+    --quiet
+  gcloud compute --project=${PROJECT} \
+    networks delete \
+    ${PREFIX}-net-$N \
+    --quiet
+done
+```
