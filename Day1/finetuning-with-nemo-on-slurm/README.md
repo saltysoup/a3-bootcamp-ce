@@ -16,7 +16,7 @@
 
 1. Log into the GCE Console in the lab project `injae-sandbox-340804` using your provided lab IAM user account.  
 
-2. SSH into VM `slurm99-login-osmpeolo-001` using the OSLogin from the browser.
+2. SSH into VM `slurm99-login-0smpeolo-001` using the OSLogin from the browser.
 
 3. Navigate to the working directory for the lab.
 
