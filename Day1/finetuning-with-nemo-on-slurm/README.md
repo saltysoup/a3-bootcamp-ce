@@ -126,7 +126,7 @@ Job nemo-megatron-test_1 submission file created at '/home/bootcamp/hpc-toolkit/
 Job nemo-megatron-test_1 submitted with Job ID 213
 ```
 
-- The fine-tuning job uses a llama3 checkpoint and tokenizer stored in the `launcher_scripts_data/llama_3_8b` directory. The fine-tuning job yaml refers to this with `restore_from_path: ${data_dir}/llama_3_8b`.
+- The fine-tuning job uses a llama3 checkpoint and tokenizer stored in the `launcher_scripts/data/llama_3_8b` directory. The fine-tuning job yaml refers to this with `restore_from_path: ${data_dir}/llama_3_8b`.
 - In the first run, the job will automatically download example dataset for instruction tuning the llama3 model. This will take a few min to complete.
 - Monitor the progress using Slurm command `watch squeue`, where R means running. If something has failed, the job will disappear from the queue automatically.
 
@@ -165,7 +165,9 @@ Epoch 0: :  65%|██████▌   | 13/20 [03:25<01:50, reduced_train_loss
 vim conf/fine_tuning/llama/<yourLdap>.yaml
 
 # Try to make changes with parallelism, micro_batch_size, quantization (precision), global_batch_size etc..
-``` 
+```
+
+**Note: The full fine tuning config yaml can be found in launcher_scripts/data/llama_3_8b/model_config.yaml. However, as this is a shared lab, please do not modify this and customise your own respective NeMo job yaml only (even though it has limited customisation in comparison)**
 
 2. TIP: SSH into a GPU node that your job is running in and monitor your GPU metrics in real time using tool such as `nvitop`. For example, this will show you how much GPU memory is being utilised, which is helpful to debug CUDA OOM or available headroom to further use your GPUs to drive more performance
 
