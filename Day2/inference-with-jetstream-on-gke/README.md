@@ -2,9 +2,6 @@
 
 > In this lab, you will learn how to deploy open LLMs (Gemma specifically) for serving with TPUs on GKE.
 
-- For `Inference with vLLM on GKE`, use cluster `l4andvllm` in region `asia-southeast1` and cluster `h100onvllm` in region `us-east5`
-- For `Inference with JetStream and TPUs on GKE`, use cluster `tpu-cluster-netherlands` in region `europe-west4`
-
 ## Prerequisites
 
 This lab assumes you already have two GKE clusters up and running with TPU v5e accelerators.
@@ -52,7 +49,8 @@ Now it's time to deploy Gemma with JetStream to our clusters. As the previous la
 Given __kaggle.json__ file, run the following command to ingest your Kaggle Access Token to your cluster. Make sure set the path to your __kaggle.json__ correctly.
 
 ```bash
-kubectl create secret generic kaggle-secret \
+# Create a unique name for kaggle-secret eg. yourLdap-kaggle-secret 
+kubectl create secret generic yourLdap-kaggle-secret \
 --from-file=${YOUR-PATH-TO-kaggle.json}
 ```
 
@@ -65,6 +63,15 @@ We will convert the Kaggle-provided checkpoint to a MaxText compatible format fi
 Follow the below instructions to download and convert the Gemma 7B model checkpoint files.
 
 1. Create the following manifest as __job-7b.yaml__. Make sure to replace __${BUCKET_NAME}__ with your own bucket's name.
+
+**Update the name of your secret to the value you set in above step within the manifest eg. yourLdap-kaggle-secret**
+```
+volumes:
+  - name: kaggle-credentials
+    secret:
+      defaultMode: 0400
+      secretName: yourLdap-kaggle-secret
+```
 
   ```yaml
   apiVersion: batch/v1
@@ -98,7 +105,7 @@ Follow the below instructions to download and convert the Gemma 7B model checkpo
         - name: kaggle-credentials
           secret:
             defaultMode: 0400
-            secretName: kaggle-secret
+            secretName: yourLdap-kaggle-secret
   ```
 
 2. Apply the manifest:
