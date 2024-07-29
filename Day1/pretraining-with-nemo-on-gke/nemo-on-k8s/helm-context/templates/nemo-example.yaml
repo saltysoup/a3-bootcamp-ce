@@ -415,9 +415,9 @@ spec:
         echo "Running nvidia-smi"
         nvidia-smi
 
-        mkdir -p /ssd/dataset/
         mkdir -p /gcs
         gcsfuse --client-protocol http2 $GCS_FUSE_BUCKET /gcs 
+        mkdir -p /gcs/nemo_index/
 
         # export LD_LIBRARY_PATH="/usr/local/nccl-plugin/lib64:/usr/local/cuda-12.3/lib64:/usr/local/nvidia/lib64/:${LD_LIBRARY_PATH}"
         export LD_LIBRARY_PATH="/usr/local/nccl-plugin/lib64:/usr/local/nvidia/lib64/:${LD_LIBRARY_PATH}"
