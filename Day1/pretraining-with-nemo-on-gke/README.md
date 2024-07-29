@@ -30,11 +30,11 @@ export PROJECT="injae-sandbox-340804"
 ### Create VPC and subnets
 ```
 for N in $(seq 1 8); do
-  gcloud compute --project=${PROJECT} \
-    networks create \
-    ${PREFIX}-net-$N \
-    --subnet-mode=custom \
-    --mtu=${MTU}
+  gcloud compute --project=${PROJECT} \
+    networks create \
+    ${PREFIX}-net-$N \
+    --subnet-mode=custom \
+    --mtu=${MTU}
   gcloud compute --project=${PROJECT} \
     networks subnets create \
     ${PREFIX?}-sub-$N \
