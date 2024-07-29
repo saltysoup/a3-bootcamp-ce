@@ -22,6 +22,7 @@ gcsDownload: # downloads or synchronizes contents of a GCS bucket folder on init
 workload:
   image: "us-central1-docker.pkg.dev/injae-sandbox-340804/a3-bootcamp-labs/nemo:24.05.llama3.1.vanilla"
   torchDistributedTarget: "/opt/NeMo/examples/nlp/language_modeling/megatron_gpt_pretraining.py"
+  gcsBucketForDataCataPath: <yourLdap>-nemo # name of your bucket without gs://
 
   gpus: 16 #128 # This should be one of: {<= 8,  multiple of 8}
   arguments:
@@ -33,7 +34,7 @@ workload:
   - name: "model.data.data_prefix"
     value: "[1.0,/ssd/dataset/]"
   - name: "model.data.index_mapping_dir"
-    value: "/ssd/dataset/"
+    value: "/gcs/nemo_index/"
   - name: "trainer.max_steps"
     value: "10"
   - name: "trainer.val_check_interval"
