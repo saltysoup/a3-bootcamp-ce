@@ -44,7 +44,7 @@ if __name__ == "__main__":
     avg_tp = tot_num_tokens / tot_elapsed_time
 
     print("\n===== Result =====")
-    print(f"Request Counts: {REQ_CNT}")
+    print(f"Request Count: {REQ_CNT}")
     print(f"Total Elapsed Time for Generation: {tot_elapsed_time:.2f} seconds")
     print(f"Total Generated Tokens: {tot_num_tokens}")
     print(f"Average Throughput: {avg_tp:.2f} tokens/sec")
