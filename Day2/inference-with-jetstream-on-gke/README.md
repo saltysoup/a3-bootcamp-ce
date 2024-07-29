@@ -312,7 +312,7 @@ The output will be like:
 
 ```text
 ===== Result =====
-Request Counts: 30
+Request Count: 30
 Total Elapsed Time for Generation: 1294.31 seconds
 Total Generated Tokens: 4490
 Average Throughput: 3.47 tokens/sec

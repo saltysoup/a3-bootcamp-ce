@@ -108,13 +108,9 @@ spec:
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
-            cpu: "64"
-            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
           limits:
-            cpu: "64"
-            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
@@ -232,7 +228,7 @@ The output will be like:
 
 ```text
 ===== Result =====
-Request Counts: 30
+Request Count: 30
 Total Elapsed Time for Generation: 316.79 seconds
 Total Generated Tokens: 6193
 Average Throughput: 19.55 tokens/sec
@@ -301,13 +297,9 @@ spec:
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
-            cpu: "8"
-            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
           limits:
-            cpu: "8"
-            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
@@ -433,7 +425,7 @@ The output will be like:
 
 ```text
 ===== Result =====
-Request Counts: 30
+Request Count: 30
 Total Elapsed Time for Generation: 65.24 seconds
 Total Generated Tokens: 6679
 Average Throughput: 102.38 tokens/sec
