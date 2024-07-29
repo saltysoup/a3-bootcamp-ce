@@ -55,7 +55,7 @@ done
 ## Step 2: Create a GKE Cluster
 
 ```
-export GKE_VERSION=1.28.10-gke.1148001
+export GKE_VERSION=1.28.11-gke.1172000
 export CLUSTER_NAME="<yourLdap>"
 
 gcloud --project ${PROJECT} beta container clusters create ${CLUSTER_NAME} --enable-dataplane-v2 --enable-ip-alias --region ${REGION} --node-locations ${ZONE} --enable-multi-networking --cluster-version ${GKE_VERSION} --no-enable-autoupgrade
