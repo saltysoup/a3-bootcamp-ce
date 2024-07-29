@@ -257,32 +257,20 @@ nemo-on-k8s/
   - In `values.yaml`, you can find custom configurations that will be used in helm templates such as workload/NCCL Plugin/RxDM container images, and NeMo training configs. 
   - In `templates/nemo-example.yaml`, you can find how the final kubernetes manifest for the job is created using the values from above yaml files through helm template. 
 
-## Step 2: Deploy your training job to GKE
+## Step 2: Set a new GCS bucket to write/read dataset index for NeMo
+
+For NeMo to run a pretraining job, it needs to generate an index of the dataset for each nodes to load. To do this, we'll create a new bucket, which will be mounted via GCS fuse by the NeMo job container as a shared storage.
+
+```
+# Create a new unique bucket in same location as the GKE cluster
+gsutil mb -l asia-northeast1 gs://<yourLdap>-nemo
+```
+
+Update the value for `gcsBucketForDataCataPath: <yourLdap-nemo>` within `nemo-on-k8s/helm-context/values.yaml` with the name of your bucket above.
+
+## Step 3: Deploy your training job to GKE
 
 From the `nemo-on-k8s` directory, submit a new job using Helm. Here is a [Link to installing Helm if you don't have it](https://helm.sh/docs/intro/install/).
-
-
-## Workaround bug on nemo dataset index build error
-`NOTE: There is a bug currently where your job will fail with below, when trying to create a dataset. See workaround below`
-
-```
-[NeMo I 2024-07-29 08:46:41 utils:220] Build and save the MockGPTDataset valid indices
-[NeMo I 2024-07-29 08:46:41 utils:220] > total number of samples: 16640
-[NeMo I 2024-07-29 08:46:41 utils:220] > total number of epochs: 1
-[rank0]:[E ProcessGroupNCCL.cpp:588] [Rank 0] Some NCCL operations have failed or timed out. Due to the asynchronous nature of CUDA kernels, subsequent GPU operations might run on corrupted/incomplete data.
-[rank0]:[E ProcessGroupNCCL.cpp:594] [Rank 0] To avoid data inconsistency, we are taking the entire process down.
-[rank0]:[E ProcessGroupNCCL.cpp:1385] [PG 0 Rank 0] NCCL watchdog thread terminated with exception: NCCL error: internal error - please report this issue to the NCCL developers, NCCL version 2.21.5
-ncclInternalError: Internal check failed.
-
-
-### Note the value for your job's "train_step_timing in"
-This is the key information for determining training throughput. This indicates it took 46.00 seconds (below) for every step in the training pass. This can be used to measure and compare performance across clusters and models.
-```
-- Edit `values.yaml` and set the number of gpus to 8 `gpus: 8 #16`
-- Run the job twice, to ensure each node creates a local dataset in the local ssd /ssd
-- Kill the job after ~6-7 min once the dataset is built
-- Change back the number of gpus to 16 in `values.yaml`
-- Proceed with lab instructions
 
 ```
 helm install <jobName> helm-context/
@@ -300,7 +288,7 @@ REVISION: 1
 TEST SUITE: None
 ```
 
-### Step 3: Monitoring your training job
+## Step 4: Monitoring your training job
 
 Verify that your pods are running (you should have 2 pods in total - 1 for each VM).
 
@@ -315,7 +303,7 @@ Get the name of the first pod and stream the logs into your local terminal eg. `
 
 If successful, you should see NCCL creating a distributed group across the 16 GPU ranks across 2 nodes, and NeMo creating and loading an index of the dataset for the training task.
 
-**For the first run, it will take approx 7-8 min to build the index into the local SSD. Note that the index will be created again if the sequence length, global batch size or max steps are changed**
+**For the first run, it will take approx 7-8 min to build the index into the gcsfuse mounted bucket (You can also check the content of the bucket in GCS console to see the index files being created). Note that the index will be created again if the sequence length, global batch size or max steps are changed**
 
 ```
 kubectl logs -f llama2-train-0-cks86
@@ -443,6 +431,9 @@ Waiting on Torch PID 678
 Waiting on Torch PID 679
 Pod on gke-apacaiinfra-a3plus-multi-nic-a7c5e69e-lhwh.asia-northeast1-b.c.injae-sandbox-340804.internal is exiting at Fri Jul 26 12:16:35 UTC 2024 
 ```
+### Note the value for your job's "train_step_timing in s=xx.xx"
+This is the key information for determining training throughput. This indicates it took 46.00 seconds (above) for every step in the training pass using your configs. This can be used to measure and compare performance across clusters and models by converting to tokens/sec/GPU throughput or used to calculate the MFU.
+
 ---
 
 ## ***Performance Tune and set a High Score!***
