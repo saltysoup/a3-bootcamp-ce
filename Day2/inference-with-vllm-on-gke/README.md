@@ -108,13 +108,13 @@ spec:
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
-            cpu: "2"
-            memory: "80Gi"
+            cpu: "64"
+            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
           limits:
-            cpu: "2"
-            memory: "80Gi"
+            cpu: "64"
+            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
@@ -301,13 +301,13 @@ spec:
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
-            cpu: "2"
-            memory: "80Gi"
+            cpu: "8"
+            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
           limits:
-            cpu: "2"
-            memory: "80Gi"
+            cpu: "8"
+            memory: "128Gi"
             ephemeral-storage: "25Gi"
             nvidia.com/gpu: 8
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
