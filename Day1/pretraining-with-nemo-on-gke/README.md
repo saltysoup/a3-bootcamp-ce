@@ -447,7 +447,7 @@ export PROJECT="injae-sandbox-340804"
 export CLUSTER_NAME="<yourLdap>"
 ```
 ```
-gcloud --project ${PROJECT} beta container clusters delete ${CLUSTER_NAME} --region ${REGION} --node-locations ${ZONE} 
+gcloud --project ${PROJECT} beta container clusters delete ${CLUSTER_NAME} --region ${REGION}
 ```
 
 
