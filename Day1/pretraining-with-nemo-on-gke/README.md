@@ -303,7 +303,7 @@ Get the name of the first pod and stream the logs into your local terminal eg. `
 
 If successful, you should see NCCL creating a distributed group across the 16 GPU ranks across 2 nodes, and NeMo creating and loading an index of the dataset for the training task.
 
-**For the first run, it will take approx 7-8 min to build the index into the gcsfuse mounted bucket (You can also check the content of the bucket in GCS console to see the index files being created). Note that the index will be created again if the sequence length, global batch size or max steps are changed**
+**For the first run, it will take approx 7-8 min to build the index into the gcsfuse mounted bucket (You can also check the content of the bucket in GCS console to see the index files being created under gs://<yourLdap-nemo>/nemo_index). Note that the index will be created again if the sequence length, global batch size or max steps are changed**
 
 ```
 kubectl logs -f llama2-train-0-cks86
