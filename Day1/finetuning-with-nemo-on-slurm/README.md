@@ -51,7 +51,7 @@ NUM_NODES=2
 JOB_NAME=$1
 
 # Auth to access Llama HF repo
-HF_TOKEN=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
+HF_TOKEN=<providedToken>
 
 python main.py \
     launcher_scripts_path=${PWD} \
