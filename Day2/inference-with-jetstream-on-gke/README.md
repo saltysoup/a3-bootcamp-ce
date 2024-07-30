@@ -2,6 +2,11 @@
 
 > In this lab, you will learn how to deploy open LLMs (Gemma specifically) for serving with TPUs on GKE.
 
+Use the existing GKE clusters below
+
+For Inference with vLLM on GKE, use cluster l4andvllm in region asia-southeast1 and cluster h100onvllm in region us-east5
+For Inference with JetStream and TPUs on GKE, use cluster tpu-cluster-netherlands in region europe-west4
+
 ## Prerequisites
 
 This lab assumes you already have two GKE clusters up and running with TPU v5e accelerators.
