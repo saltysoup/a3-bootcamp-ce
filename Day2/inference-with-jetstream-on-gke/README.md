@@ -206,7 +206,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
   - max_prefill_predict_length: the maximum length for the prefill when doing autoregression.
   - max_target_length: the maximum sequence length.
   - model_name: the model name (gemma-7b).
-  ici_fsdp_parallelism: the number of shards for fully sharded data parallelism (FSDP).
+  - ici_fsdp_parallelism: the number of shards for fully sharded data parallelism (FSDP).
   - ici_tensor_parallelism: the number of shards for tensor parallelism.
   - ici_autoregressive_parallelism: the number of shards for autoregressive parallelism.
   - scan_layers: scan layers boolean flag (boolean).
