@@ -262,7 +262,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
 To send inference requests, let's set up port forwarding by running the following command.
 
 ```bash
-kubectl port-forward svc/jetstream-svc 8000:8000
+kubectl port-forward svc/${YOUR_LDAP}-jetstream-svc 8000:8000 # replace
 ```
 
 The output is similar to the following:
