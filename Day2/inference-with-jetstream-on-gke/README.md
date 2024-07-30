@@ -46,11 +46,11 @@ Now it's time to deploy Gemma with JetStream to our clusters. As the previous la
 
 ### Set Kaggle Access Token as a k8s Secret
 
-Given __kaggle.json__ file, run the following command to ingest your Kaggle Access Token to your cluster. Make sure set the path to your __kaggle.json__ correctly.
+Given __kaggle.json__ file, run the following command to ingest your Kaggle Access Token to your cluster. Make sure set the path to your __kaggle.json__ correctly. Update the string ${YOUR_LDAP} with your LDAP to make it unique.
 
 ```bash
-# Create a unique name for kaggle-secret eg. yourLdap-kaggle-secret 
-kubectl create secret generic yourLdap-kaggle-secret \
+# Update the string ${YOUR_LDAP} with your LDAP to make it unique
+kubectl create secret generic ${YOUR_LDAP}-kaggle-secret \
 --from-file=${YOUR-PATH-TO-kaggle.json}
 ```
 
@@ -62,32 +62,24 @@ We will convert the Kaggle-provided checkpoint to a MaxText compatible format fi
 
 Follow the below instructions to download and convert the Gemma 7B model checkpoint files.
 
-1. Create the following manifest as __job-7b.yaml__. Make sure to replace __${BUCKET_NAME}__ with your own bucket's name.
+1. Create the following manifest as __job-7b.yaml__. Make sure to replace __${BUCKET_NAME}__ with your own bucket's name and __${YOUR_LDAP}__ with your LDAP.
 
-**Update the name of your secret to the value you set in above step within the manifest eg. yourLdap-kaggle-secret**
-```
-volumes:
-  - name: kaggle-credentials
-    secret:
-      defaultMode: 0400
-      secretName: yourLdap-kaggle-secret
-```
 
   ```yaml
   apiVersion: batch/v1
   kind: Job
   metadata:
-    name: data-loader-7b
+    name: ${YOUR_LDAP}-data-loader-7b # replace
   spec:
     ttlSecondsAfterFinished: 30
     template:
       spec:
         restartPolicy: Never
         containers:
-        - name: inference-checkpoint
+        - name: ${YOUR_LDAP}-inference-checkpoint # replace
           image: us-docker.pkg.dev/cloud-tpu-images/inference/inference-checkpoint:v0.2.3
           args:
-          - -b=${BUCKET_NAME}
+          - -b=${BUCKET_NAME} # replace
           - -m=google/gemma/maxtext/7b-it/2
           volumeMounts:
           - mountPath: "/kaggle/"
@@ -105,7 +97,7 @@ volumes:
         - name: kaggle-credentials
           secret:
             defaultMode: 0400
-            secretName: yourLdap-kaggle-secret
+            secretName: ${YOUR_LDAP}-kaggle-secret # replace
   ```
 
 2. Apply the manifest:
@@ -117,7 +109,7 @@ volumes:
 3. View the logs from the Job:
 
   ```bash
-  kubectl logs -f jobs/data-loader-7b
+  kubectl logs -f jobs/${YOUR_LDAP}-data-loader-7b # replace
   ```
 
   When the Job is completed, the output is similar to the following:
@@ -135,28 +127,28 @@ Now you will see checkpoint files created in your bucket. With those file, you w
 
 Follow below instructions to deploy the Gemma 7B instruction tuned model.
 
-1. Create the following __jetstream-gemma-deployment.yaml__ manifest.  Make sure to replace __${BUCKET_NAME}__ with your own bucket's name.
+1. Create the following __jetstream-gemma-deployment.yaml__ manifest.  Make sure to replace __${BUCKET_NAME}__ with your own bucket's name and __${YOUR_LDAP}__ with your LDAP.
 
   ```yaml
   apiVersion: apps/v1
   kind: Deployment
   metadata:
-    name: maxengine-server
+    name: ${YOUR_LDAP}-maxengine-server # replace
   spec:
     replicas: 1
     selector:
       matchLabels:
-        app: maxengine-server
+        app: ${YOUR_LDAP}-maxengine-server # replace
     template:
       metadata:
         labels:
-          app: maxengine-server
+          app: ${YOUR_LDAP}-maxengine-server # replace
       spec:
         nodeSelector:
           cloud.google.com/gke-tpu-topology: 2x4
           cloud.google.com/gke-tpu-accelerator: tpu-v5-lite-podslice
         containers:
-        - name: maxengine-server
+        - name: ${YOUR_LDAP}-maxengine-server
           image: us-docker.pkg.dev/cloud-tpu-images/inference/maxengine-server:v0.2.2
           args:
           - model_name=gemma-7b
@@ -170,7 +162,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
           - ici_tensor_parallelism=1
           - scan_layers=false
           - weight_dtype=bfloat16
-          - load_parameters_path=gs://${BUCKET_NAME}/final/unscanned/gemma_7b-it/0/checkpoints/0/items
+          - load_parameters_path=gs://${BUCKET_NAME}/final/unscanned/gemma_7b-it/0/checkpoints/0/items # replace
           ports:
           - containerPort: 9000
           resources:
@@ -178,7 +170,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
               google.com/tpu: 8
             limits:
               google.com/tpu: 8
-        - name: jetstream-http
+        - name: jetstream-http # replace
           image: minjkang/a3-bootcamp-lab4:latest
           ports:
           - containerPort: 8000
@@ -186,10 +178,10 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
   apiVersion: v1
   kind: Service
   metadata:
-    name: jetstream-svc
+    name: ${YOUR_LDAP}-jetstream-svc # replace
   spec:
     selector:
-      app: maxengine-server
+      app: ${YOUR_LDAP}-maxengine-server # replace
     ports:
     - protocol: TCP
       name: jetstream-http
@@ -231,13 +223,13 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
 
   ```text
   NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
-  maxengine-server                  2/2     2            2           ##s
+  ${YOUR_LDAP}-maxengine-server     1/1     1            1           10m
   ```
 
 4. View the HTTP server logs to check that the model has been loaded and compiled. It may take the server a few minutes to complete this operation.
 
   ```bash
-  kubectl logs deploy/maxengine-server -f -c jetstream-http
+  kubectl logs deploy/${YOUR_LDAP}-maxengine-server -f -c jetstream-http # replace
   ```
 
   The output is similar to the following:
@@ -252,7 +244,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
 5. View the MaxEngine logs and verify that the compilation is done.
 
   ```bash
-  kubectl logs deploy/maxengine-server -f -c maxengine-server
+  kubectl logs deploy/${YOUR_LDAP}-maxengine-server -f -c maxengine-server # replace
   ```
 
   When everything is up and running, the output will be similar to the following:

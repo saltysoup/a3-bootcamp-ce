@@ -65,11 +65,11 @@ We will start with deploying on the cluster with L4s first. Make sure your L4 cl
 
 #### Set HuggingFace Access Token as a k8s Secret
 
-Run the following command to ingest your HuggingFace Access Token to the cluster. Update the string ${YOUR-LDAP} with your LDAP to make it unique.
+Run the following command to ingest your HuggingFace Access Token to the cluster. Update the string ${YOUR_LDAP} with your LDAP to make it unique.
 
 ```bash
-# Update the string ${YOUR-LDAP} with your LDAP to make it unique
-kubectl create secret generic ${YOUR-LDAP}-secret \
+# Update the string ${YOUR_LDAP} with your LDAP to make it unique
+kubectl create secret generic ${YOUR_LDAP}-secret \
 --from-literal=hf_api_token=$HF_TOKEN \
 --dry-run=client -o yaml | kubectl apply -f -
 ```
@@ -78,28 +78,28 @@ kubectl create secret generic ${YOUR-LDAP}-secret \
 
 Let's create a k8s manifest named __gemma-vllm-l4.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
 
-> **Don't forget to update the string ${YOUR-LDAP} with your LDAP to make k8s resources unique!**
+> **Don't forget to update the string ${YOUR_LDAP} with your LDAP to make k8s resources unique!**
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${YOUR-LDAP}-vllm-gemma-deployment # replace
+  name: ${YOUR_LDAP}-vllm-gemma-deployment # replace
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${YOUR-LDAP}-gemma-server # replace
+      app: ${YOUR_LDAP}-gemma-server # replace
   template:
     metadata:
       labels:
-        app: ${YOUR-LDAP}-gemma-server # replace
+        app: ${YOUR_LDAP}-gemma-server # replace
         ai.gke.io/model: gemma-7b-it
         ai.gke.io/inference-server: vllm
         examples.ai.gke.io/source: user-guide
     spec:
       containers:
-      - name: ${YOUR-LDAP}-inference-server # replace
+      - name: ${YOUR_LDAP}-inference-server # replace
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
@@ -119,7 +119,7 @@ spec:
         - name: HUGGING_FACE_HUB_TOKEN
           valueFrom:
             secretKeyRef:
-              name: ${YOUR-LDAP}-secret # replace
+              name: ${YOUR_LDAP}-secret # replace
               key: hf_api_token
         volumeMounts:
         - mountPath: /dev/shm
@@ -134,10 +134,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${YOUR-LDAP}-llm-service # replace
+  name: ${YOUR_LDAP}-llm-service # replace
 spec:
   selector:
-    app: ${YOUR-LDAP}-gemma-server # replace
+    app: ${YOUR_LDAP}-gemma-server # replace
   type: ClusterIP
   ports:
     - protocol: TCP
@@ -164,7 +164,7 @@ kubectl wait --for=condition=Available --timeout=700s deployment/vllm-gemma-depl
 You can view the logs from the running Deployment:
 
 ```bash
-kubectl logs -f -l app=${YOUR-LDAP}-gemma-server # replace
+kubectl logs -f -l app=${YOUR_LDAP}-gemma-server # replace
 ```
 
 The Deployment resource downloads the model data. This process can take a few minutes. Once you succeed, the output will be similar to the following:
@@ -181,7 +181,7 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 To send inference requests, let's set up port forwarding by running the following command.
 
 ```bash
-kubectl port-forward service/${YOUR-LDAP}-llm-service 8000:8000 # replace
+kubectl port-forward service/${YOUR_LDAP}-llm-service 8000:8000 # replace
 ```
 
 The output is similar to the following:
@@ -258,11 +258,11 @@ kubectl config use-context ${CONTEXT-NAME-OF-YOUR-H100-CLUSTER}
 
 #### Set HuggingFace Access Token as a k8s Secret
 
-Run the following command to ingest your HuggingFace Access Token to the cluster. Update the string ${YOUR-LDAP} with your LDAP to make it unique.
+Run the following command to ingest your HuggingFace Access Token to the cluster. Update the string ${YOUR_LDAP} with your LDAP to make it unique.
 
 ```bash
-# Update the string ${YOUR-LDAP} with your LDAP to make it unique
-kubectl create secret generic ${YOUR-LDAP}-secret \
+# Update the string ${YOUR_LDAP} with your LDAP to make it unique
+kubectl create secret generic ${YOUR_LDAP}-secret \
 --from-literal=hf_api_token=$HF_TOKEN \
 --dry-run=client -o yaml | kubectl apply -f -
 ```
@@ -270,28 +270,28 @@ kubectl create secret generic ${YOUR-LDAP}-secret \
 #### Create k8s Manifest
 Let's create a k8s manifest named __gemma-vllm-h100.yaml__ for *Service* and *Deployment*. Then paste the following to the file.
 
-> **Don't forget to update the string ${YOUR-LDAP} with your LDAP to make k8s resources unique!**
+> **Don't forget to update the string ${YOUR_LDAP} with your LDAP to make k8s resources unique!**
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${YOUR-LDAP}-vllm-gemma-deployment # replace
+  name: ${YOUR_LDAP}-vllm-gemma-deployment # replace
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${YOUR-LDAP}-gemma-server # replace
+      app: ${YOUR_LDAP}-gemma-server # replace
   template:
     metadata:
       labels:
-        app: ${YOUR-LDAP}-gemma-server # replace
+        app: ${YOUR_LDAP}-gemma-server # replace
         ai.gke.io/model: gemma-7b-it
         ai.gke.io/inference-server: vllm
         examples.ai.gke.io/source: user-guide
     spec:
       containers:
-      - name: ${YOUR-LDAP}-inference-server # replace
+      - name: ${YOUR_LDAP}-inference-server # replace
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
@@ -311,7 +311,7 @@ spec:
         - name: HUGGING_FACE_HUB_TOKEN
           valueFrom:
             secretKeyRef:
-              name: ${YOUR-LDAP}-secret # replace
+              name: ${YOUR_LDAP}-secret # replace
               key: hf_api_token
         volumeMounts:
         - mountPath: /dev/shm
@@ -326,10 +326,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${YOUR-LDAP}-llm-service # replace
+  name: ${YOUR_LDAP}-llm-service # replace
 spec:
   selector:
-    app: ${YOUR-LDAP}-gemma-server # replace
+    app: ${YOUR_LDAP}-gemma-server # replace
   type: ClusterIP
   ports:
     - protocol: TCP
@@ -356,7 +356,7 @@ kubectl wait --for=condition=Available --timeout=700s deployment/vllm-gemma-depl
 You can view the logs from the running Deployment:
 
 ```bash
-kubectl logs -f -l app=${YOUR-LDAP}-gemma-server # replace
+kubectl logs -f -l app=${YOUR_LDAP}-gemma-server # replace
 ```
 
 The Deployment resource downloads the model data. This process can take a few minutes. Once you succeed, the output will be similar to the following:
@@ -373,7 +373,7 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 To send inference requests, let's set up port forwarding by running the following command.
 
 ```bash
-kubectl port-forward service/${YOUR-LDAP}-llm-service 8000:8000 # replace
+kubectl port-forward service/${YOUR_LDAP}-llm-service 8000:8000 # replace
 ```
 
 The output is similar to the following:
