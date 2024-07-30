@@ -99,7 +99,7 @@ spec:
         examples.ai.gke.io/source: user-guide
     spec:
       containers:
-      - name: ${YOUR_LDAP}-inference-server # replace
+      - name: inference-server
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
@@ -158,7 +158,7 @@ A Pod in the cluster will download the model weights from HuggingFace using your
 Wait for the Deployment to be available:
 
 ```bash
-kubectl wait --for=condition=Available --timeout=700s deployment/vllm-gemma-deployment
+kubectl wait --for=condition=Available --timeout=700s deployment/${YOUR_LDAP}-vllm-gemma-deployment # replace
 ```
 
 You can view the logs from the running Deployment:
@@ -291,7 +291,7 @@ spec:
         examples.ai.gke.io/source: user-guide
     spec:
       containers:
-      - name: ${YOUR_LDAP}-inference-server # replace
+      - name: inference-server
         image: minjkang/a3-bootcamp-lab3:latest
         resources:
           requests:
@@ -350,7 +350,7 @@ A Pod in the cluster will download the model weights from HuggingFace using your
 Wait for the Deployment to be available:
 
 ```bash
-kubectl wait --for=condition=Available --timeout=700s deployment/vllm-gemma-deployment
+kubectl wait --for=condition=Available --timeout=700s deployment/${YOUR_LDAP}-vllm-gemma-deployment # replace
 ```
 
 You can view the logs from the running Deployment:
