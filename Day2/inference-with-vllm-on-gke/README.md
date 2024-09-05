@@ -4,7 +4,7 @@
 
 **Use the existing GKE clusters below**
 - For `Inference with vLLM on GKE`, use cluster `l4andvllm` in region `asia-southeast1` and cluster `h100onvllm` in region `us-east5`
-- For `Inference with JetStream and TPUs on GKE`, use cluster `tpu-cluster-netherlands` in region `europe-west4`
+- For `Inference with JetStream and TPUs on GKE`, use cluster `xpk-ikwak-v6e` in region `us-central2`
 
 ## Prerequisites
 

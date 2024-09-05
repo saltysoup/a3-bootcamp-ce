@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: felixli-vllm-gemma-deployment # replace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: felixli-gemma-server # replace
+  template:
+    metadata:
+      labels:
+        app: felixli-gemma-server # replace
+        ai.gke.io/model: gemma-7b-it
+        ai.gke.io/inference-server: vllm
+        examples.ai.gke.io/source: user-guide
+    spec:
+      containers:
+      - name: inference-server
+        image: minjkang/a3-bootcamp-lab3:latest
+        resources:
+          requests:
+            ephemeral-storage: "25Gi"
+            nvidia.com/gpu: 8
+          limits:
+            ephemeral-storage: "25Gi"
+            nvidia.com/gpu: 8
+        command: ["python3", "-m", "vllm.entrypoints.api_server"]
+        args:
+        - --model=$(MODEL_ID)
+        - --tensor-parallel-size=2
+        - --gpu-memory-utilization=0.7
+        env:
+        - name: MODEL_ID
+          value: google/gemma-7b-it
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: felixli-secret # replace
+              key: hf_api_token
+        volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+      - name: dshm
+        emptyDir:
+            medium: Memory
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: felixli-llm-service # replace
+spec:
+  selector:
+    app: felixli-gemma-server # replace
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
