@@ -208,6 +208,8 @@ Here is the example result for the nccl-test workload:
 
 > -With above example, this shows an approx ~195-200 GB/s being used for message sizes from 1GB+ on the NCCL test. This shows usage of almost all available 1600 Gbps network bandwidth, using conversion formular (X GB/s * 8) = Y Gbps 
 
+### Note: Delete your NCCL Test Pods before more to next steps.
+
 ### *Optional : Topology Awareness Setup*
 
 If you are using the compact placement or gSC shared reservation when creating A3+ nodepool, you can set up topology awareness configuration to gain better network performance.
