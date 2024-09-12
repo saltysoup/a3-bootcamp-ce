@@ -258,7 +258,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
 5. View the MaxEngine logs and verify that the compilation is done.
 
   ```bash
-  kubectl logs deploy/${YOUR_LDAP}-maxengine-server -f -c maxengine-server # replace
+  kubectl logs deploy/${YOUR_LDAP}-maxengine-server -f -c jetstream-http # replace
   ```
 
   When everything is up and running, the output will be similar to the following:
