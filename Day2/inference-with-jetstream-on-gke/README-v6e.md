@@ -23,13 +23,13 @@ To connect to existing GKE clusters, you have to create ~/.kube/config contexts 
 gcloud container clusters get-credentials ${CLUSTER_NAME} --location=${REGION}
 ```
 
-If you have to run the above command successfully, you will the context for your TPU v5e cluster from the output of the following command:
+If you have to run the above command successfully, you will the context for your TPU v6e cluster from the output of the following command:
 
 ```bash
 kubectl config get-contexts
 ```
 
-To set your TPU v5e cluster as the CURRENT context, run the following.
+To set your TPU v6e cluster as the CURRENT context, run the following.
 
 ```bash
 kubectl config use-context ${CONTEXT_NAME_OF_TPU_CLUSTER}
