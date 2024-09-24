@@ -383,7 +383,7 @@ MAX_STEPS=15
 NUM_NODES=2
 
 # Auth to access Llama HF repo
-HF_TOKEN=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
+HF_TOKEN=%YOUR-HF-TOKEN%
 
 python main.py \
     launcher_scripts_path=${PWD} \
