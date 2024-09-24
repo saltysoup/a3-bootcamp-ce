@@ -85,7 +85,7 @@ gcloud beta container node-pools create ${NODE_POOL_NAME} --region ${REGION} --n
 
 ```
 # Check the driver installer and gpu device plugin
-kubectl get pod -n kube-system
+kubectl get pod -n kube-system | grep nvidia
 # Output
 nvidia-gpu-device-plugin-large-cos-2z7p7     1/1     Running   0          4h12m
 nvidia-gpu-device-plugin-large-cos-p4dn5     1/1     Running   0          4h12m
@@ -97,11 +97,8 @@ nvidia-gpu-device-plugin-large-cos-p4dn5     1/1     Running   0          4h12m
 
 ```
 # Verify count of nvidia.com/gpu resources on node
-kubectl describe nodes
+kubectl describe nodes | grep Allocatable: -A 6
 # Output.
-Capacity:
-  ...
-  nvidia.com/gpu:             8
 Allocatable:
   ...
   nvidia.com/gpu:             8
