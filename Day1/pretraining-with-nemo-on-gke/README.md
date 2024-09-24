@@ -125,7 +125,7 @@ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container
 Wait until the nccl plugin is running, which takes ~120s.
 
 ```
-kubectl get pod -n kube-system
+kubectl get pod -n kube-system | grep tcpxo
 # Output
 nccl-tcpxo-installer-6c2pv                    1/1     Running   0          2m11s
 nccl-tcpxo-installer-qgg82                    1/1     Running   0          2m11s
