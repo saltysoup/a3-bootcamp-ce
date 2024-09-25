@@ -96,7 +96,7 @@ Follow the below instructions to download and convert the Gemma 7B model checkpo
             limits:
               google.com/tpu: 4
         nodeSelector:
-          cloud.google.com/gke-tpu-topology: 2x2
+          cloud.google.com/gke-tpu-topology: 8x8
           cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
         volumes:
         - name: kaggle-credentials
