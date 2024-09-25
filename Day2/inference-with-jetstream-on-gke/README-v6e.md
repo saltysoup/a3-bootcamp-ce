@@ -150,7 +150,7 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
           app: ${YOUR_LDAP}-maxengine-server # replace
       spec:
         nodeSelector:
-          cloud.google.com/gke-tpu-topology: 2x2
+          cloud.google.com/gke-tpu-topology: 8x8
           cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
         containers:
         - name: ${YOUR_LDAP}-maxengine-server
