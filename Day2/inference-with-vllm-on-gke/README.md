@@ -296,10 +296,10 @@ spec:
         resources:
           requests:
             ephemeral-storage: "25Gi"
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 4
           limits:
             ephemeral-storage: "25Gi"
-            nvidia.com/gpu: 8
+            nvidia.com/gpu: 4
         command: ["python3", "-m", "vllm.entrypoints.api_server"]
         args:
         - --model=$(MODEL_ID)
