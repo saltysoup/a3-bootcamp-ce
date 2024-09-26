@@ -96,7 +96,7 @@ Follow the below instructions to download and convert the Gemma 7B model checkpo
             limits:
               google.com/tpu: 4
         nodeSelector:
-          cloud.google.com/gke-tpu-topology: 8x8
+          cloud.google.com/gke-tpu-topology: 2x2
           cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
         volumes:
         - name: kaggle-credentials
@@ -150,11 +150,11 @@ Follow below instructions to deploy the Gemma 7B instruction tuned model.
           app: ${YOUR_LDAP}-maxengine-server # replace
       spec:
         nodeSelector:
-          cloud.google.com/gke-tpu-topology: 8x8
+          cloud.google.com/gke-tpu-topology: 2x2
           cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
         containers:
         - name: ${YOUR_LDAP}-maxengine-server
-          image: us-docker.pkg.dev/injae-sandbox-340804/tpu/maxengine-server:v0.2.2-tpu-v6e
+          image: us-central1-docker.pkg.dev/injae-sandbox-340804/trillium-tests/jetstream-maxengine:v6e
           securityContext:
             privileged: true
           env:
